@@ -57,7 +57,7 @@ function FcVotes({ color=C.acid, count }) {
   return (
     <div style={{ display:'flex', alignItems:'center', gap:4, marginTop:6 }}>
       <svg width="11" height="11" fill="currentColor" viewBox="0 0 20 20" style={{ color }}><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/></svg>
-      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, color }}>{count}</span>
+      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:14, fontWeight:700, color }}>{count}</span>
     </div>
   )
 }
@@ -391,13 +391,13 @@ export default function AuthPage({ initialTab = 'login' }) {
                   </div>
                 )}
                 <div style={{ marginBottom:18 }}>
-                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Username</label>
+                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:14, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Username</label>
                   <input className="auth-input" type="text" placeholder="your_handle" value={loginForm.username}
                     onChange={e => setLoginForm(f => ({ ...f, username:e.target.value }))}
                     style={inputBase} autoComplete="username"/>
                 </div>
                 <div style={{ marginBottom:6 }}>
-                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Password</label>
+                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:14, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Password</label>
                   <div style={{ position:'relative' }}>
                     <input className="auth-input" type={showLoginPass ? 'text' : 'password'} placeholder="••••••••" value={loginForm.password}
                       onChange={e => setLoginForm(f => ({ ...f, password:e.target.value }))}
@@ -407,16 +407,16 @@ export default function AuthPage({ initialTab = 'login' }) {
                     </button>
                   </div>
                 </div>
-                <a href="#" style={{ display:'block', textAlign:'right', fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.steel, textDecoration:'none', letterSpacing:'0.08em', marginTop:4, marginBottom:16, transition:'color .15s' }}
+                <a href="#" style={{ display:'block', textAlign:'right', fontFamily:"'JetBrains Mono',monospace", fontSize:14, color:C.steel, textDecoration:'none', letterSpacing:'0.08em', marginTop:4, marginBottom:16, transition:'color .15s' }}
                   onMouseEnter={e=>e.currentTarget.style.color=C.rust}
                   onMouseLeave={e=>e.currentTarget.style.color=C.steel}
                 >¿Olvidaste tu contraseña?</a>
                 <button type="submit" disabled={loginLoading} className="auth-btn-dark">
                   {loginLoading ? 'AUTHENTICATING...' : 'ACCESS →'}
                 </button>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.fade, textAlign:'center', marginTop:14, letterSpacing:'0.08em' }}>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:14, color:C.fade, textAlign:'center', marginTop:14, letterSpacing:'0.08em' }}>
                   no account?{' '}
-                  <button type="button" onClick={() => setTab('register')} style={{ background:'none', border:'none', color:C.steel, fontWeight:700, cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:11, padding:0 }}>REGISTER</button>
+                  <button type="button" onClick={() => setTab('register')} style={{ background:'none', border:'none', color:C.steel, fontWeight:700, cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:14, padding:0 }}>REGISTER</button>
                 </div>
               </form>
             )}
@@ -430,19 +430,19 @@ export default function AuthPage({ initialTab = 'login' }) {
                   </div>
                 )}
                 <div style={{ marginBottom:18 }}>
-                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Username</label>
+                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:14, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Username</label>
                   <input className="auth-input" type="text" placeholder="your_handle" value={regForm.username}
                     onChange={e => setRegForm(f => ({ ...f, username:e.target.value }))}
                     style={inputBase} autoComplete="username"/>
                 </div>
                 <div style={{ marginBottom:18 }}>
-                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Email</label>
+                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:14, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Email</label>
                   <input className="auth-input" type="email" placeholder="tu@email.com" value={regForm.email}
                     onChange={e => setRegForm(f => ({ ...f, email:e.target.value }))}
                     style={inputBase} autoComplete="email"/>
                 </div>
                 <div style={{ marginBottom:6 }}>
-                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Password</label>
+                  <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:14, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Password</label>
                   <div style={{ position:'relative' }}>
                     <input className="auth-input" type={showRegPass ? 'text' : 'password'} placeholder="mín. 8 caracteres" value={regForm.password}
                       onChange={e => setRegForm(f => ({ ...f, password:e.target.value }))}
@@ -456,9 +456,9 @@ export default function AuthPage({ initialTab = 'login' }) {
                 <button type="submit" disabled={regLoading} className="auth-btn-acid">
                   {regLoading ? 'JOINING...' : 'JOIN THE WALL →'}
                 </button>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.fade, textAlign:'center', marginTop:14, letterSpacing:'0.08em' }}>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:14, color:C.fade, textAlign:'center', marginTop:14, letterSpacing:'0.08em' }}>
                   already in?{' '}
-                  <button type="button" onClick={() => setTab('login')} style={{ background:'none', border:'none', color:C.steel, fontWeight:700, cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:11, padding:0 }}>LOGIN</button>
+                  <button type="button" onClick={() => setTab('login')} style={{ background:'none', border:'none', color:C.steel, fontWeight:700, cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:14, padding:0 }}>LOGIN</button>
                 </div>
               </form>
             )}
@@ -466,11 +466,11 @@ export default function AuthPage({ initialTab = 'login' }) {
 
           {/* Continue as guest */}
           <div style={{ marginTop:14, textAlign:'center' }}>
-            <Link to="/" style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.steel, textDecoration:'none', letterSpacing:'0.12em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:8, transition:'color .15s' }}
-              onMouseEnter={e=>e.currentTarget.style.color=C.rust}
-              onMouseLeave={e=>e.currentTarget.style.color=C.steel}
+            <Link to="/" style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:14, color:C.crack, textDecoration:'none', letterSpacing:'0.12em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:8, transition:'color .15s' }}
+              onMouseEnter={e=>e.currentTarget.style.color=C.acid}
+              onMouseLeave={e=>e.currentTarget.style.color=C.crack}
             >
-              <span style={{ display:'inline-block', width:5, height:5, border:`2px solid ${C.steel}` }}/>
+              <span style={{ display:'inline-block', width:5, height:5, border:`2px solid ${C.acid}` }}/>
               Continuar sin cuenta — solo lectura
             </Link>
           </div>
