@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useRef, useState } from 'react'
 import api from '../api/axios'
 import { useAuth } from '../context/AuthContext'
@@ -20,6 +20,7 @@ const MARGINS   = [0, 12, -8, 6, -4, 10]
 
 export default function PostCard({ post, onVote, index = 0, featured = false }) {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const cardRef = useRef(null)
   const [hovered, setHovered] = useState(false)
 
@@ -54,10 +55,11 @@ export default function PostCard({ post, onVote, index = 0, featured = false }) 
     <div
       ref={cardRef}
       className="post-card"
+      onClick={() => navigate(`/posts/${post.id}`)}
       onMouseEnter={() => setHovered(true)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{
+      style={{ cursor:'pointer',
         background: '#FDFCF8',
         border: '2px solid #111008',
         boxShadow: hovered ? '8px 8px 0 #111008' : '5px 5px 0 #111008',
@@ -103,7 +105,7 @@ export default function PostCard({ post, onVote, index = 0, featured = false }) 
 
       <div style={{ display:'flex' }}>
         {/* Vote column */}
-        <div style={{
+        <div onClick={e => e.stopPropagation()} style={{
           width:54, display:'flex', flexDirection:'column', alignItems:'center',
           justifyContent:'flex-start', padding:'16px 8px 16px',
           background:'#F2EFE8', borderRight:'2px solid #E8E4DC', flexShrink:0,
@@ -148,7 +150,7 @@ export default function PostCard({ post, onVote, index = 0, featured = false }) 
 
           {/* Actions */}
           <div style={{ display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
-            <Link to={`/posts/${post.id}`} style={{
+            <Link to={`/posts/${post.id}`} onClick={e => e.stopPropagation()} style={{
               display:'inline-flex', alignItems:'center', gap:6,
               background:'#E8E4DC', border:'1px solid #C8C2B6',
               padding:'4px 10px', borderRadius:2, textDecoration:'none',
