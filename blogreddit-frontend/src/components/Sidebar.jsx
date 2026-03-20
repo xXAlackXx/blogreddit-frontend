@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../context/AuthContext'
+import api from '../api/axios'
 
 const blockStyle = (rot = 0) => ({
   background: '#FDFCF8',
@@ -29,7 +31,7 @@ function BlockHeader({ color, children }) {
   )
 }
 
-function ProfileBlock({ user }) {
+function ProfileBlock({ user, profile }) {
   if (!user) return null
   return (
     <div style={blockStyle(-0.4)}>
@@ -56,7 +58,7 @@ function ProfileBlock({ user }) {
           </div>
         </div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
-          {[{label:'POSTS',val:0},{label:'CMTS',val:0},{label:'KARMA',val:0,acid:true}].map(s=>(
+          {[{label:'POSTS',val:profile?.posts_count ?? 0},{label:'CMTS',val:profile?.comments_count ?? 0},{label:'KARMA',val:profile?.karma ?? 0,acid:true}].map(s=>(
             <div key={s.label} style={{
               padding:'8px 6px', textAlign:'center',
               background: s.acid ? '#6DC800' : '#E8E4DC',
@@ -166,9 +168,15 @@ function CommunityBlock({ user, count }) {
 
 export default function Sidebar({ count }) {
   const { user } = useAuth()
+  const { data: profile } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => api.get('/users/me/').then(r => r.data),
+    enabled: !!user,
+    staleTime: 60_000,
+  })
   return (
     <div style={{ width:280, flexShrink:0 }}>
-      <ProfileBlock user={user} />
+      <ProfileBlock user={user} profile={profile} />
       <CommunityBlock user={user} count={count} />
       <TagCloud />
       <QuoteBlock />

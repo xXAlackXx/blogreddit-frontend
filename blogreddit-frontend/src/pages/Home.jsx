@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import api from '../api/axios'
 import PostCard from '../components/PostCard'
 import HeroStrip from '../components/HeroStrip'
@@ -32,11 +32,17 @@ function SkeletonCard({ rot = 0 }) {
 
 export default function Home() {
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const inputRef = useRef(null)
 
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ['posts', search],
-    queryFn: () => api.get(`/posts/?search=${search}`).then(r => r.data),
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(t)
+  }, [search])
+
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['posts', debouncedSearch],
+    queryFn: () => api.get(`/posts/?search=${debouncedSearch}`).then(r => r.data),
   })
 
   const rots = [0.5, -0.7, 0.3, -0.5, 0.8]
@@ -77,7 +83,15 @@ export default function Home() {
 
           {/* Posts */}
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-            {isLoading ? (
+            {isError ? (
+              <div style={{
+                background:'#111008', border:'2px solid #E8420A', boxShadow:'4px 4px 0 #E8420A',
+                padding:'16px 20px', fontFamily:"'JetBrains Mono',monospace", fontSize:13, color:'#E8420A',
+              }}>
+                // ERROR: no se pudo cargar el feed —{' '}
+                <button onClick={refetch} style={{ background:'none', border:'none', color:'#6DC800', fontFamily:"'JetBrains Mono',monospace", fontSize:13, fontWeight:700, cursor:'pointer', padding:0 }}>reintentar</button>
+              </div>
+            ) : isLoading ? (
               [0,1,2,3].map(i => <SkeletonCard key={i} rot={rots[i%rots.length]}/>)
             ) : data?.results?.length === 0 ? (
               <div style={{
