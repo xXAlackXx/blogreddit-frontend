@@ -108,6 +108,50 @@ body::after {
   border-radius: 2px;
 }
 
+/* ─── AUTH PAGE ANIMATIONS ──────────────────── */
+@keyframes flyIn1 { from{opacity:0;transform:translate(-70px,-45px) rotate(-7deg) scale(.82);} to{opacity:1;transform:translate(0,0) rotate(-2.5deg) scale(1);} }
+@keyframes flyIn2 { from{opacity:0;transform:translate(80px,-35px) rotate(6deg) scale(.85);} to{opacity:1;transform:translate(0,0) rotate(2deg) scale(1);} }
+@keyframes flyIn3 { from{opacity:0;transform:translate(-45px,65px) rotate(4deg) scale(.88);} to{opacity:1;transform:translate(0,0) rotate(1.5deg) scale(1);} }
+@keyframes flyIn4 { from{opacity:0;transform:translate(55px,65px) rotate(-5deg) scale(.84);} to{opacity:1;transform:translate(0,0) rotate(-1.5deg) scale(1);} }
+@keyframes floatA { 0%,100%{transform:rotate(-2.5deg) translateY(0);} 50%{transform:rotate(-2.5deg) translateY(-10px);} }
+@keyframes floatB { 0%,100%{transform:rotate(2deg) translateY(0);} 50%{transform:rotate(2deg) translateY(-8px);} }
+@keyframes floatC { 0%,100%{transform:rotate(1.5deg) translateY(0);} 50%{transform:rotate(1.5deg) translateY(-12px);} }
+@keyframes popIn  { from{opacity:0;transform:scale(.90) translateY(24px);} to{opacity:1;transform:scale(1) translateY(0);} }
+@keyframes glitch {
+  0%,90%,100%{transform:none;filter:none;}
+  91%{transform:translateX(-2px);filter:brightness(1.2);}
+  92%{transform:translateX(3px) skewX(-2deg);filter:hue-rotate(25deg);}
+  93%{transform:none;filter:none;}94%{transform:translateX(-1px);}95%{transform:none;}
+}
+@keyframes fadeUp { from{opacity:0;transform:translate(-50%,12px);} to{opacity:1;transform:translate(-50%,0);} }
+
+/* Floating cards */
+.fc { position:fixed; border:2px solid #111008; box-shadow:5px 5px 0 #111008; overflow:hidden; z-index:5; pointer-events:none; }
+.fc-1 { width:196px; background:#FDFCF8; top:6vh; left:52vw; animation:flyIn1 .7s cubic-bezier(.22,1,.36,1) .1s both, floatA 5s ease-in-out 1s infinite; }
+.fc-2 { width:228px; top:4vh; right:3.5vw; animation:flyIn2 .7s cubic-bezier(.22,1,.36,1) .2s both, floatB 6s ease-in-out 1.2s infinite; }
+.fc-3 { width:158px; bottom:20vh; left:51.5vw; animation:flyIn3 .7s cubic-bezier(.22,1,.36,1) .32s both, floatC 4.5s ease-in-out .8s infinite; }
+.fc-4 { width:196px; background:#FDFCF8; bottom:8vh; right:3vw; animation:flyIn4 .7s cubic-bezier(.22,1,.36,1) .42s both, floatA 5.5s ease-in-out 2s infinite; }
+.fc-5 { width:136px; height:168px; top:40vh; left:50.5vw; animation:flyIn3 .7s cubic-bezier(.22,1,.36,1) .5s both, floatB 7s ease-in-out 1.5s infinite; }
+.fc-6 { width:118px; background:#FDFCF8; top:33vh; right:2.5vw; animation:flyIn2 .7s cubic-bezier(.22,1,.36,1) .6s both, floatC 5.8s ease-in-out 2.5s infinite; }
+.fc-7 { width:148px; bottom:4vh; left:64vw; animation:flyIn4 .7s cubic-bezier(.22,1,.36,1) .7s both, floatA 6.5s ease-in-out 3s infinite; }
+.fc-8 { width:138px; background:#FDFCF8; top:11vh; left:70vw; animation:flyIn1 .7s cubic-bezier(.22,1,.36,1) .15s both, floatB 5.2s ease-in-out .5s infinite; }
+
+/* Auth form wrapper */
+.auth-pop { animation:popIn .6s cubic-bezier(.22,1,.36,1) .08s both; }
+.auth-fade-up { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); animation:fadeUp .5s cubic-bezier(.22,1,.36,1) .8s both; }
+.auth-glitch { animation:glitch 9s ease-in-out 5s infinite; }
+.auth-card-bar::before { content:''; position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,var(--acid),var(--teal),var(--steel)); }
+.auth-input:focus { border-color:#111008 !important; box-shadow:3px 3px 0 #111008 !important; }
+.auth-input-err { border-color:#E8420A !important; box-shadow:3px 3px 0 #E8420A !important; }
+.auth-btn-dark { width:100%; background:#111008; color:#6DC800; border:2px solid #111008; box-shadow:6px 6px 0 #6DC800; padding:17px; cursor:pointer; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:.14em; transition:all .15s; margin-top:8px; }
+.auth-btn-dark:hover { transform:translate(-2px,-2px); box-shadow:8px 8px 0 #6DC800; }
+.auth-btn-dark:active { transform:translate(2px,2px); box-shadow:none; }
+.auth-btn-dark:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:6px 6px 0 #6DC800; }
+.auth-btn-acid { width:100%; background:#6DC800; color:#111008; border:2px solid #111008; box-shadow:6px 6px 0 #111008; padding:17px; cursor:pointer; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:.14em; transition:all .15s; margin-top:8px; }
+.auth-btn-acid:hover { transform:translate(-2px,-2px); box-shadow:8px 8px 0 #111008; }
+.auth-btn-acid:active { transform:translate(2px,2px); box-shadow:none; }
+.auth-btn-acid:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:6px 6px 0 #111008; }
+
 /* ─── SCROLLBAR ──────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--wall); }

@@ -5,7 +5,7 @@ export default function Footer() {
     <footer style={{
       background: '#111008',
       borderTop: '3px solid #6DC800',
-      marginTop: 64,
+
       position: 'relative',
       overflow: 'hidden',
     }}>
