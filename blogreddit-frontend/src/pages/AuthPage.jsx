@@ -466,7 +466,7 @@ export default function AuthPage({ initialTab = 'login' }) {
 
           {/* Continue as guest */}
           <div style={{ marginTop:14, textAlign:'center' }}>
-            <Link to="/" style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:14, color:C.crack, textDecoration:'none', letterSpacing:'0.12em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:8, transition:'color .15s' }}
+            <Link to="/" style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:14, color:C.crack, textDecoration:'none', letterSpacing:'0.12em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:8, transition:'color .15s', background:'rgba(17,16,8,0.72)', padding:'7px 16px', border:`1px solid rgba(200,194,182,0.2)` }}
               onMouseEnter={e=>e.currentTarget.style.color=C.acid}
               onMouseLeave={e=>e.currentTarget.style.color=C.crack}
             >
