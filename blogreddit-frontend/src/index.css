@@ -157,3 +157,23 @@ body::after {
 ::-webkit-scrollbar-track { background: var(--wall); }
 ::-webkit-scrollbar-thumb { background: var(--crack); border-radius: 0; }
 ::-webkit-scrollbar-thumb:hover { background: var(--stain); }
+
+/* ─── MOBILE ─────────────────────────────────── */
+@media (max-width: 640px) {
+  .sidebar-wrapper { display: none !important; }
+
+  /* PostCard: sin rotación ni offset lateral */
+  .post-card { transform: none !important; margin-left: 0 !important; }
+
+  /* PostCard: reducir padding derecho (el número serial ocupa menos espacio) */
+  .post-card-content { padding: 10px 12px 10px 12px !important; }
+
+  /* PostCard: número serial más pequeño */
+  .post-card-serial { font-size: 28px !important; top: 6px !important; right: 8px !important; }
+
+  /* Feed: menos padding lateral */
+  .feed-container { padding: 12px 10px !important; }
+
+  /* Navbar: ocultar "FEED" y "NUEVO" links de texto, dejar solo acciones */
+  .nav-links { display: none !important; }
+}

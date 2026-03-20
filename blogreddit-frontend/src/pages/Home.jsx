@@ -51,7 +51,7 @@ export default function Home() {
     <div style={{ position:'relative', zIndex:1 }}>
       <HeroStrip count={data?.count} />
 
-      <div style={{ maxWidth:1100, margin:'0 auto', padding:'24px 16px', display:'flex', gap:28, alignItems:'flex-start' }}>
+      <div className="feed-container" style={{ maxWidth:1100, margin:'0 auto', padding:'24px 16px', display:'flex', gap:28, alignItems:'flex-start' }}>
 
         {/* Feed */}
         <div style={{ flex:1, minWidth:0 }}>

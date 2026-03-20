@@ -53,6 +53,7 @@ export default function PostCard({ post, onVote, index = 0, featured = false }) 
   return (
     <div
       ref={cardRef}
+      className="post-card"
       onMouseEnter={() => setHovered(true)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -84,7 +85,7 @@ export default function PostCard({ post, onVote, index = 0, featured = false }) 
       <div style={{ height: 4, background: paintColor }} />
 
       {/* Serial number */}
-      <div style={{
+      <div className="post-card-serial" style={{
         position:'absolute', top:8, right:10,
         fontFamily:"'Space Grotesk',sans-serif", fontSize:44, fontWeight:800,
         color: hovered ? 'rgba(109,200,0,0.25)' : 'rgba(17,16,8,0.06)',
@@ -115,7 +116,7 @@ export default function PostCard({ post, onVote, index = 0, featured = false }) 
         </div>
 
         {/* Content */}
-        <div style={{ padding:'12px 44px 12px 14px', flex:1, minWidth:0 }}>
+        <div className="post-card-content" style={{ padding:'12px 44px 12px 14px', flex:1, minWidth:0 }}>
           {/* Meta */}
           <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8, flexWrap:'wrap' }}>
             <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#3A3630', fontWeight:700 }}>

@@ -35,7 +35,7 @@ export default function Navbar() {
         <div style={{ flex:1 }}/>
 
         {/* Nav links */}
-        <div style={{ display:'flex', gap:4, alignItems:'center' }}>
+        <div className="nav-links" style={{ display:'flex', gap:4, alignItems:'center' }}>
           {[{label:'FEED', to:'/'}, {label:'NUEVO', to:'/create'}].map(item => (
             <Link key={item.to} to={item.to} style={{
               fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700,
