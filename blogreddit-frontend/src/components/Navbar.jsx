@@ -70,15 +70,19 @@ export default function Navbar() {
                   width:32, height:32,
                   background:'linear-gradient(135deg,#E8420A,#F0B800)',
                   border:'2px solid #6A6258', borderRadius:2,
+                  overflow:'hidden',
                   display:'flex', alignItems:'center', justifyContent:'center',
                   cursor:'pointer',
                 }}
                 onMouseEnter={e=>e.currentTarget.style.border='2px solid #6DC800'}
                 onMouseLeave={e=>e.currentTarget.style.border='2px solid #6A6258'}
                 >
-                  <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'#111008' }}>
-                    {user.username?.[0]?.toUpperCase() || 'U'}
-                  </span>
+                  {user.avatar
+                    ? <img src={user.avatar} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                    : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'#111008' }}>
+                        {user.username?.[0]?.toUpperCase() || 'U'}
+                      </span>
+                  }
                 </div>
               </Link>
               <button onClick={handleLogout} style={{

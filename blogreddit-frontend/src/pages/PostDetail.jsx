@@ -74,10 +74,11 @@ export default function PostDetail() {
           {/* Content */}
           <div style={{ padding:'18px 24px', flex:1 }}>
             <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-              <div style={{ width:28, height:28, background:'linear-gradient(135deg,#E8420A,#F0B800)', border:'2px solid #111008', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'#111008' }}>
-                  {post.author?.[0]?.toUpperCase()}
-                </span>
+              <div style={{ width:28, height:28, background:'linear-gradient(135deg,#E8420A,#F0B800)', border:'2px solid #111008', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, overflow:'hidden' }}>
+                {post.author_avatar
+                  ? <img src={post.author_avatar} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                  : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'#111008' }}>{post.author?.[0]?.toUpperCase()}</span>
+                }
               </div>
               <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700, color:'#3A3630' }}>{post.author}</span>
               <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#9A9288' }}>{timeAgo(post.created_at)}</span>
@@ -152,10 +153,11 @@ export default function PostDetail() {
               padding:'16px 0',
               display:'flex', gap:14,
             }}>
-              <div style={{ width:32, height:32, background:`linear-gradient(135deg, ${['#6DC800','#E8420A','#F0B800','#1A6EC0','#0A9E88'][i%5]}, #111008)`, border:'2px solid #111008', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'#FDFCF8' }}>
-                  {c.author?.[0]?.toUpperCase()}
-                </span>
+              <div style={{ width:32, height:32, background:`linear-gradient(135deg, ${['#6DC800','#E8420A','#F0B800','#1A6EC0','#0A9E88'][i%5]}, #111008)`, border:'2px solid #111008', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, overflow:'hidden' }}>
+                {c.author_avatar
+                  ? <img src={c.author_avatar} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                  : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'#FDFCF8' }}>{c.author?.[0]?.toUpperCase()}</span>
+                }
               </div>
               <div style={{ flex:1 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>

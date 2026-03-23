@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../context/AuthContext'
+
 import api from '../api/axios'
 
 /* ── helpers ── */
@@ -150,7 +151,7 @@ function TerminalEmpty({ lines }) {
 
 /* ── Main ── */
 export default function Profile() {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const navigate  = useNavigate()
   const qc        = useQueryClient()
   const fileRef   = useRef(null)
@@ -226,6 +227,7 @@ export default function Profile() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['me'] })
+      refreshUser()
       setAvatarFile(null)
       setSaved(true)
       setSaveError('')
