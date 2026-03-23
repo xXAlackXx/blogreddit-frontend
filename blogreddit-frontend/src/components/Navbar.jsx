@@ -65,17 +65,22 @@ export default function Navbar() {
               onMouseLeave={e=>{e.currentTarget.style.background='#6DC800';e.currentTarget.style.color='#111008'}}
               >+ POST</Link>
               {/* Avatar */}
-              <div style={{
-                width:32, height:32, flexShrink:0,
-                background:'linear-gradient(135deg,#E8420A,#F0B800)',
-                border:'2px solid #6A6258', borderRadius:2,
-                display:'flex', alignItems:'center', justifyContent:'center',
-                cursor:'pointer', position:'relative',
-              }}>
-                <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'#111008' }}>
-                  {user.username?.[0]?.toUpperCase() || 'U'}
-                </span>
-              </div>
+              <Link to="/profile" style={{ textDecoration:'none', flexShrink:0 }}>
+                <div style={{
+                  width:32, height:32,
+                  background:'linear-gradient(135deg,#E8420A,#F0B800)',
+                  border:'2px solid #6A6258', borderRadius:2,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  cursor:'pointer',
+                }}
+                onMouseEnter={e=>e.currentTarget.style.border='2px solid #6DC800'}
+                onMouseLeave={e=>e.currentTarget.style.border='2px solid #6A6258'}
+                >
+                  <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, color:'#111008' }}>
+                    {user.username?.[0]?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+              </Link>
               <button onClick={handleLogout} style={{
                 background:'none', border:'1px solid #6A6258',
                 color:'#9A9288', padding:'6px 12px', borderRadius:2,

@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import AuthPage from './pages/AuthPage'
 import CreatePost from './pages/CreatePost'
 import PostDetail from './pages/PostDetail'
+import Profile from './pages/Profile'
 
 const queryClient = new QueryClient()
 
@@ -40,6 +41,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/create" element={<CreatePost />} />
               <Route path="/posts/:id" element={<PostDetail />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
           </Routes>
         </BrowserRouter>
