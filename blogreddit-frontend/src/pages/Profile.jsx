@@ -219,9 +219,7 @@ export default function Profile() {
   const { mutate: save, isPending: saving } = useMutation({
     mutationFn: () => {
       const fd = new FormData()
-      fd.append('username', username)
       fd.append('bio', bio)
-      fd.append('email', email)
       if (avatarFile) fd.append('avatar', avatarFile)
       return api.patch('/users/me/', fd)
     },
@@ -395,27 +393,11 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Username */}
-                <div style={{ marginBottom:18 }}>
-                  <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'#6A6258', display:'block', marginBottom:8 }}>// USERNAME</label>
-                  <input type="text" value={username} onChange={e=>setUsername(e.target.value)} placeholder="tu username"
-                    style={{ width:'100%', maxWidth:360, border:'2px solid #C8C2B6', background:'#F2EFE8', outline:'none', padding:'10px 14px', fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#111008', transition:'border-color .15s', boxSizing:'border-box' }}
-                    onFocus={e=>e.target.style.borderColor='#111008'} onBlur={e=>e.target.style.borderColor='#C8C2B6'} />
-                </div>
-
                 {/* Bio */}
                 <div style={{ marginBottom:18 }}>
                   <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'#6A6258', display:'block', marginBottom:8 }}>// BIO</label>
                   <textarea value={bio} onChange={e=>setBio(e.target.value)} rows={4} placeholder="Cuéntanos algo sobre ti..."
                     style={{ width:'100%', border:'2px solid #C8C2B6', background:'#F2EFE8', outline:'none', padding:'10px 14px', fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#111008', lineHeight:1.6, resize:'vertical', transition:'border-color .15s', boxSizing:'border-box' }}
-                    onFocus={e=>e.target.style.borderColor='#111008'} onBlur={e=>e.target.style.borderColor='#C8C2B6'} />
-                </div>
-
-                {/* Email */}
-                <div style={{ marginBottom:24 }}>
-                  <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'#6A6258', display:'block', marginBottom:8 }}>// EMAIL</label>
-                  <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="tu@email.com"
-                    style={{ width:'100%', maxWidth:360, border:'2px solid #C8C2B6', background:'#F2EFE8', outline:'none', padding:'10px 14px', fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#111008', transition:'border-color .15s', boxSizing:'border-box' }}
                     onFocus={e=>e.target.style.borderColor='#111008'} onBlur={e=>e.target.style.borderColor='#C8C2B6'} />
                 </div>
 
