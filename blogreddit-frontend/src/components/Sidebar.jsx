@@ -43,10 +43,12 @@ function ProfileBlock({ user, profile }) {
             background:'linear-gradient(135deg,#E8420A,#F0B800)',
             border:'2px solid #111008', boxShadow:'2px 2px 0 #111008',
             display:'flex', alignItems:'center', justifyContent:'center',
+            overflow:'hidden',
           }}>
-            <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:'#111008' }}>
-              {user.username?.[0]?.toUpperCase()}
-            </span>
+            {user.avatar
+              ? <img src={user.avatar} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+              : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:'#111008' }}>{user.username?.[0]?.toUpperCase()}</span>
+            }
           </div>
           <div>
             <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:15, color:'#111008' }}>
