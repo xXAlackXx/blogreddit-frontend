@@ -255,8 +255,8 @@ export default function AuthPage({ initialTab = 'login' }) {
         <div style={{ height:3, background:C.acid }}/>
         <div style={{ padding:'11px 13px' }}>
           <FcTag bg={C.acid}>Django</FcTag>
-          <FcTitle>Por qué GraphQL cambia todo en proyectos medianos</FcTitle>
-          <FcMeta>maría.c · hace 4h</FcMeta>
+          <FcTitle>Why GraphQL changes everything in mid-size projects</FcTitle>
+          <FcMeta>maría.c · 4h ago</FcMeta>
           <FcVotes color={C.acid} count={342}/>
         </div>
       </div>
@@ -297,8 +297,8 @@ export default function AuthPage({ initialTab = 'login' }) {
         <div style={{ height:3, background:C.steel }}/>
         <div style={{ padding:'11px 13px' }}>
           <FcTag bg={C.steel} color="#fff">Tutorial</FcTag>
-          <FcTitle>JWT Auth con DRF paso a paso</FcTitle>
-          <FcMeta>josé.p · hace 2d</FcMeta>
+          <FcTitle>JWT Auth with DRF step by step</FcTitle>
+          <FcMeta>josé.p · 2d ago</FcMeta>
           <FcVotes color={C.acid} count={98}/>
         </div>
       </div>
@@ -319,7 +319,7 @@ export default function AuthPage({ initialTab = 'login' }) {
       <div className="fc fc-6" style={{ padding:10 }}>
         <div style={{ height:3, background:C.rust, margin:'-10px -10px 9px -10px' }}/>
         <FcTag bg={C.rust} color="#fff">Debate</FcTag>
-        <FcTitle>¿Tailwind mata el CSS?</FcTitle>
+        <FcTitle>Does Tailwind kill CSS?</FcTitle>
         <FcVotes color={C.acid} count={112}/>
       </div>
 
@@ -338,8 +338,8 @@ export default function AuthPage({ initialTab = 'login' }) {
         <div style={{ height:3, background:C.amber }}/>
         <div style={{ padding:'9px 11px' }}>
           <FcTag bg={C.amber}>React</FcTag>
-          <FcTitle>Server Components y el TTFB bajó 60%</FcTitle>
-          <FcMeta>andrés.l · 6h</FcMeta>
+          <FcTitle>Server Components and TTFB dropped 60%</FcTitle>
+          <FcMeta>andrés.l · 6h ago</FcMeta>
         </div>
       </div>
 
@@ -410,7 +410,7 @@ export default function AuthPage({ initialTab = 'login' }) {
                 <a href="#" style={{ display:'block', textAlign:'right', fontFamily:"'JetBrains Mono',monospace", fontSize:14, color:C.steel, textDecoration:'none', letterSpacing:'0.08em', marginTop:4, marginBottom:16, transition:'color .15s' }}
                   onMouseEnter={e=>e.currentTarget.style.color=C.rust}
                   onMouseLeave={e=>e.currentTarget.style.color=C.steel}
-                >¿Olvidaste tu contraseña?</a>
+                >Forgot your password?</a>
                 <button type="submit" disabled={loginLoading} className="auth-btn-dark">
                   {loginLoading ? 'AUTHENTICATING...' : 'ACCESS →'}
                 </button>
@@ -444,7 +444,7 @@ export default function AuthPage({ initialTab = 'login' }) {
                 <div style={{ marginBottom:6 }}>
                   <label style={{ display:'block', fontFamily:"'JetBrains Mono',monospace", fontSize:14, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.22em', color:C.smudge, marginBottom:7 }}>Password</label>
                   <div style={{ position:'relative' }}>
-                    <input className="auth-input" type={showRegPass ? 'text' : 'password'} placeholder="mín. 8 caracteres" value={regForm.password}
+                    <input className="auth-input" type={showRegPass ? 'text' : 'password'} placeholder="min. 8 characters" value={regForm.password}
                       onChange={e => setRegForm(f => ({ ...f, password:e.target.value }))}
                       style={{ ...inputBase, paddingRight:42 }} autoComplete="new-password"/>
                     <button type="button" onClick={() => setShowRegPass(v => !v)} style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:C.fade, opacity: showRegPass ? .4 : 1, padding:0 }}>
@@ -471,7 +471,7 @@ export default function AuthPage({ initialTab = 'login' }) {
               onMouseLeave={e=>e.currentTarget.style.color=C.crack}
             >
               <span style={{ display:'inline-block', width:5, height:5, border:`2px solid ${C.acid}` }}/>
-              Continuar sin cuenta — solo lectura
+              Continue without account — read only
             </Link>
           </div>
         </div>
@@ -481,7 +481,7 @@ export default function AuthPage({ initialTab = 'login' }) {
       <Link to="/" className="auth-fade-up" style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:C.fade, textDecoration:'none', letterSpacing:'0.15em', textTransform:'uppercase', display:'flex', alignItems:'center', gap:6, zIndex:30, transition:'color .15s' }}
         onMouseEnter={e=>e.currentTarget.style.color=C.ink}
         onMouseLeave={e=>e.currentTarget.style.color=C.fade}
-      >← Volver al feed</Link>
+      >← Back to feed</Link>
     </div>
   )
 }

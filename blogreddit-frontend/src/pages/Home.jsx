@@ -88,8 +88,8 @@ export default function Home() {
                 background:'#111008', border:'2px solid #E8420A', boxShadow:'4px 4px 0 #E8420A',
                 padding:'16px 20px', fontFamily:"'JetBrains Mono',monospace", fontSize:13, color:'#E8420A',
               }}>
-                // ERROR: no se pudo cargar el feed —{' '}
-                <button onClick={refetch} style={{ background:'none', border:'none', color:'#6DC800', fontFamily:"'JetBrains Mono',monospace", fontSize:13, fontWeight:700, cursor:'pointer', padding:0 }}>reintentar</button>
+                // ERROR: could not load feed —{' '}
+                <button onClick={refetch} style={{ background:'none', border:'none', color:'#6DC800', fontFamily:"'JetBrains Mono',monospace", fontSize:13, fontWeight:700, cursor:'pointer', padding:0 }}>retry</button>
               </div>
             ) : isLoading ? (
               [0,1,2,3].map(i => <SkeletonCard key={i} rot={rots[i%rots.length]}/>)

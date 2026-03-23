@@ -83,9 +83,9 @@ export default function CreatePost() {
   const handleImg = (file) => {
     if (!file) return
     if (!ALLOWED.includes(file.type))
-      return setImg({ error: `// Tipo no permitido — solo JPEG · PNG · GIF · WEBP` })
+      return setImg({ error: `// File type not allowed — only JPEG · PNG · GIF · WEBP` })
     if (file.size > MAX_MB * 1024 * 1024)
-      return setImg({ error: `// Imagen demasiado grande — máximo ${MAX_MB} MB` })
+      return setImg({ error: `// Image too large — maximum ${MAX_MB} MB` })
     setImg({ file, preview: URL.createObjectURL(file), error: null })
   }
 
@@ -123,7 +123,7 @@ export default function CreatePost() {
         <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:20 }}>
           <Link to="/" style={{ width:36,height:36,border:'2px solid #111008',boxShadow:'3px 3px 0 #111008',background:'#FDFCF8',display:'flex',alignItems:'center',justifyContent:'center',color:'#111008',textDecoration:'none',fontWeight:700,fontSize:16,flexShrink:0 }}>←</Link>
           <div>
-            <h1 style={{ fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:22,letterSpacing:'-0.02em',lineHeight:1 }}>Nueva Publicación</h1>
+            <h1 style={{ fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:22,letterSpacing:'-0.02em',lineHeight:1 }}>New Post</h1>
             <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#9A9288',letterSpacing:'0.16em',textTransform:'uppercase',marginTop:4 }}>// submit to feed</div>
           </div>
         </div>
@@ -136,7 +136,7 @@ export default function CreatePost() {
         )}
         {!user && (
           <div style={{ background:'#111008',border:'2px solid #F0B800',padding:'10px 14px',fontFamily:"'JetBrains Mono',monospace",fontSize:12,color:'#F0B800',marginBottom:14 }}>
-            // Debes iniciar sesión para publicar —{' '}
+            // You must be logged in to post —{' '}
             <Link to="/login"    style={{ color:'#6DC800',fontWeight:700,textDecoration:'none' }}>LOGIN</Link>{' '}·{' '}
             <Link to="/register" style={{ color:'#6DC800',fontWeight:700,textDecoration:'none' }}>JOIN</Link>
           </div>
@@ -186,7 +186,7 @@ export default function CreatePost() {
                 // MARKDOWN
               </div>
               <input
-                type="text" placeholder="TÍTULO — hazlo contar" maxLength={255}
+                type="text" placeholder="TITLE — make it count" maxLength={255}
                 value={title} onChange={e=>setTitle(e.target.value)}
                 style={{ width:'100%',border:'none',borderBottom:'2px solid #C8C2B6',background:'transparent',outline:'none',fontFamily:"'Lora',serif",fontStyle:'italic',fontWeight:700,fontSize:26,color:'#111008',padding:'18px 20px 16px',transition:'border-color .15s' }}
                 onFocus={e=>e.target.style.borderBottomColor='#111008'}
@@ -194,7 +194,7 @@ export default function CreatePost() {
               />
               <textarea
                 ref={bodyRef}
-                placeholder={"Escribe en Markdown...\n\n# Heading\nPárrafo normal.\n\n> Cita\n\n`código`"}
+                placeholder={"Write in Markdown...\n\n# Heading\nNormal paragraph.\n\n> Quote\n\n`code`"}
                 value={body} onChange={e=>setBody(e.target.value)}
                 style={{ flex:1,width:'100%',border:'none',background:'transparent',outline:'none',fontFamily:"'DM Sans',sans-serif",fontSize:15,color:'#111008',lineHeight:1.75,padding:'18px 20px',resize:'none',minHeight:340 }}
               />
@@ -216,7 +216,7 @@ export default function CreatePost() {
                 )}
                 {body.trim()
                   ? <div className="md-preview" dangerouslySetInnerHTML={{ __html: parseMd(body) }} />
-                  : <p style={{ fontFamily:"'Lora',serif",fontStyle:'italic',fontSize:16,color:'#C8C2B6',marginTop:8 }}>tu post aparecerá aquí...</p>
+                  : <p style={{ fontFamily:"'Lora',serif",fontStyle:'italic',fontSize:16,color:'#C8C2B6',marginTop:8 }}>your post will appear here...</p>
                 }
               </div>
             </div>
@@ -226,7 +226,7 @@ export default function CreatePost() {
         {/* ── Image Upload ── */}
         <div style={{ border:'2px solid #111008',boxShadow:'5px 5px 0 #111008',background:'#FDFCF8',padding:'16px 20px',marginBottom:16 }}>
           <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:'0.22em',textTransform:'uppercase',color:'#3A3630',marginBottom:12,display:'flex',alignItems:'center',gap:6 }}>
-            <span style={{ color:'#6DC800' }}>//</span> IMAGEN (opcional)
+            <span style={{ color:'#6DC800' }}>//</span> IMAGE (optional)
           </div>
 
           {img?.preview ? (
@@ -250,8 +250,8 @@ export default function CreatePost() {
               {img?.error
                 ? <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:12,color:'#E8420A' }}>{img.error}</span>
                 : <>
-                    <div style={{ fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:15,color:'#3A3630',marginBottom:6 }}>Arrastra o haz click</div>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#9A9288' }}>JPEG · PNG · GIF · WEBP · máx {MAX_MB} MB</div>
+                    <div style={{ fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:15,color:'#3A3630',marginBottom:6 }}>Drag or click</div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#9A9288' }}>JPEG · PNG · GIF · WEBP · max {MAX_MB} MB</div>
                   </>
               }
               <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" style={{ display:'none' }} onChange={e=>handleImg(e.target.files[0])} />
@@ -272,7 +272,7 @@ export default function CreatePost() {
               </div>
             ))}
             <input
-              type="text" placeholder="#agregar tag… (Enter)"
+              type="text" placeholder="#add tag… (Enter)"
               value={tagInput} onChange={e=>setTagInput(e.target.value)} onKeyDown={addTag}
               style={{ border:'none',background:'transparent',outline:'none',fontFamily:"'JetBrains Mono',monospace",fontSize:12,color:'#111008',padding:'4px 2px',minWidth:180,letterSpacing:'0.05em' }}
             />
@@ -291,7 +291,7 @@ export default function CreatePost() {
           {body.trim() && (
             <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#6A6258',display:'flex',alignItems:'center',gap:6 }}>
               <span style={{ width:6,height:6,background:'#0A9E88',borderRadius:'50%',display:'inline-block',animation:'pulse 2s ease-in-out infinite' }}/>
-              Borrador activo
+              Active draft
             </span>
           )}
         </div>
@@ -300,7 +300,7 @@ export default function CreatePost() {
           style={{ fontFamily:"'Space Grotesk',sans-serif",fontSize:14,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.12em',background:canPost?'#6DC800':'#C8C2B6',color:'#111008',border:`2px solid ${canPost?'#6DC800':'#C8C2B6'}`,boxShadow:canPost?'5px 5px 0 rgba(109,200,0,0.4)':'none',padding:'12px 32px',cursor:canPost?'pointer':'not-allowed',transition:'all .15s' }}
           onMouseEnter={e=>{if(canPost){e.currentTarget.style.transform='translate(-2px,-2px)';e.currentTarget.style.boxShadow='7px 7px 0 rgba(109,200,0,0.4)'}}}
           onMouseLeave={e=>{e.currentTarget.style.transform='none';if(canPost)e.currentTarget.style.boxShadow='5px 5px 0 rgba(109,200,0,0.4)'}}
-        >{loading ? 'PUBLICANDO...' : 'PUBLICAR →'}</button>
+        >{loading ? 'PUBLISHING...' : 'PUBLISH →'}</button>
       </div>
 
       <style>{`

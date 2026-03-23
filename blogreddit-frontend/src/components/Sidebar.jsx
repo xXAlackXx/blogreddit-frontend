@@ -35,7 +35,7 @@ function ProfileBlock({ user, profile }) {
   if (!user) return null
   return (
     <div style={blockStyle(-0.4)}>
-      <BlockHeader color="#6DC800">PERFIL</BlockHeader>
+      <BlockHeader color="#6DC800">PROFILE</BlockHeader>
       <div style={{ padding:14 }}>
         <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
           <div style={{

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const TABS = ['NUEVO', 'TOP', 'HOT']
+const TABS = ['NEW', 'TOP', 'HOT']
 
 export default function SortTabs({ count }) {
   const [active, setActive] = useState(0)

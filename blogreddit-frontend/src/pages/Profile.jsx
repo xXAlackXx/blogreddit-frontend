@@ -8,15 +8,15 @@ import api from '../api/axios'
 /* ── helpers ── */
 function fmtDate(iso) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }).toUpperCase()
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()
 }
 function relTime(iso) {
   if (!iso) return ''
   const diff = (Date.now() - new Date(iso)) / 1000
-  if (diff < 3600)   return `hace ${Math.round(diff / 60)} min`
-  if (diff < 86400)  return `hace ${Math.round(diff / 3600)} horas`
-  if (diff < 172800) return 'ayer'
-  return `hace ${Math.round(diff / 86400)} días`
+  if (diff < 3600)   return `${Math.round(diff / 60)} min ago`
+  if (diff < 86400)  return `${Math.round(diff / 3600)} h ago`
+  if (diff < 172800) return 'yesterday'
+  return `${Math.round(diff / 86400)} d ago`
 }
 function readTime(content) {
   return Math.max(1, Math.round((content || '').trim().split(/\s+/).length / 200))
@@ -108,7 +108,7 @@ function PostCard({ post, index }) {
           )}
           <div style={{ display:'flex', alignItems:'center', gap:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#3A3630' }}>
             <span style={{ color: score >= 0 ? '#6DC800' : '#E8420A' }}>▲ {score > 0 ? '+' : ''}{score}</span>
-            <span>⏱ {readTime(post.content)} min lectura</span>
+            <span>⏱ {readTime(post.content)} min read</span>
           </div>
         </div>
       </article>
@@ -204,11 +204,11 @@ export default function Profile() {
     if (!file) return
     setAvatarError('')
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setAvatarError(`Solo JPEG · PNG · GIF · WEBP`)
+      setAvatarError(`Only JPEG · PNG · GIF · WEBP`)
       return
     }
     if (file.size > MAX_AVATAR_MB * 1024 * 1024) {
-      setAvatarError(`Máximo ${MAX_AVATAR_MB} MB`)
+      setAvatarError(`Maximum ${MAX_AVATAR_MB} MB`)
       return
     }
     setAvatarFile(file)
@@ -233,7 +233,7 @@ export default function Profile() {
     },
     onError: (err) => {
       const d = err.response?.data
-      setSaveError(d ? Object.values(d).flat().join(' · ') : 'Error al guardar')
+      setSaveError(d ? Object.values(d).flat().join(' · ') : 'Error saving')
     },
   })
 
@@ -278,12 +278,12 @@ export default function Profile() {
           <PanelBox title="// SYSTEM.STATS">
             <div style={{ padding:15 }}>
               <StatLine label="POSTS"       value={profile?.posts_count    ?? 0} />
-              <StatLine label="COMENTARIOS" value={profile?.comments_count ?? 0} />
+              <StatLine label="COMMENTS" value={profile?.comments_count ?? 0} />
               <StatLine label="KARMA"       value={profile?.karma          ?? 0} acid />
-              <StatLine label="RANGO"       value={rank.rango} />
-              <StatLine label="NIVEL"       value={rank.nivel} />
+              <StatLine label="RANK"        value={rank.rango} />
+              <StatLine label="LEVEL"       value={rank.nivel} />
               <div style={{ marginTop:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#9A9288' }}>
-                <span>NIVEL {rank.label}</span>
+                <span>LEVEL {rank.label}</span>
                 <div style={{ height:6, background:'#C8C2B6', marginTop:4 }}>
                   <div style={{ height:'100%', background:'#6DC800', width:`${Math.min(rank.progress,100)}%`, transition:'width 1s ease' }} />
                 </div>
@@ -292,7 +292,7 @@ export default function Profile() {
           </PanelBox>
 
           {/* Tags Panel */}
-          <PanelBox title="// INTERESES">
+          <PanelBox title="// INTERESTS">
             <div style={{ padding:15 }}>
               <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
                 {[{t:'#feed',c:'#E8420A'},{t:'#blog',c:'#1A6EC0'},{t:'#decay84',c:'#6DC800'},{t:'#community',c:'#0A9E88'}].map(({t,c})=>(
@@ -317,14 +317,14 @@ export default function Profile() {
                   </h1>
                   <div style={{ marginBottom:6 }}>
                     <span style={{ fontFamily:"'Lora',serif", fontStyle:'italic', fontSize:14, color:'#9A9288' }}>
-                      {profile?.bio || 'Sin bio aún...'}
+                      {profile?.bio || 'No bio yet...'}
                     </span>
                     <button onClick={()=>setTab('settings')} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#111008', background:'none', border:'none', cursor:'pointer', marginLeft:8, textDecoration:'underline', padding:0 }}>
-                      [EDITAR PERFIL]
+                      [EDIT PROFILE]
                     </button>
                   </div>
                   <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#9A9288' }}>
-                    Miembro desde {fmtDate(profile?.created_at)}
+                    Member since {fmtDate(profile?.created_at)}
                   </span>
                 </>
             }
@@ -332,7 +332,7 @@ export default function Profile() {
 
           {/* Tabs */}
           <div style={{ background:'#E8E4DC', border:'2px solid #111008', boxShadow:'4px 4px 0 #111008', display:'flex' }}>
-            {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMENTARIOS'},{id:'settings',l:'AJUSTES'}].map((t,i,arr)=>(
+            {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMMENTS'},{id:'settings',l:'SETTINGS'}].map((t,i,arr)=>(
               <TabBtn key={t.id} label={t.l} active={tab===t.id} onClick={()=>setTab(t.id)} last={i===arr.length-1} />
             ))}
           </div>
@@ -343,29 +343,29 @@ export default function Profile() {
               {postsLoading
                 ? [1,2,3].map(i => <div key={i} style={{ height:120, border:'2px solid #111008', background:'#E8E4DC' }} />)
                 : posts.length === 0
-                  ? <TerminalEmpty lines={['EJECUTANDO BÚSQUEDA...','// 0 RESULTADOS','// FIN DE TRANSMISIÓN']} />
+                  ? <TerminalEmpty lines={['RUNNING SEARCH...','// 0 RESULTS','// END OF TRANSMISSION']} />
                   : posts.map((p,i) => <PostCard key={p.id} post={p} index={i} />)
               }
             </div>
           )}
 
-          {/* ── Tab: COMENTARIOS ── */}
+          {/* ── Tab: COMMENTS ── */}
           {tab === 'comments' && (
             <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
               {commentsLoading
                 ? [1,2,3].map(i => <div key={i} style={{ height:90, border:'2px solid #111008', background:'#E8E4DC' }} />)
                 : comments.length === 0
-                  ? <TerminalEmpty lines={['BUSCANDO COMENTARIOS...','// 0 RESULTADOS','// FIN DE TRANSMISIÓN']} />
+                  ? <TerminalEmpty lines={['SEARCHING COMMENTS...','// 0 RESULTS','// END OF TRANSMISSION']} />
                   : comments.map((c,i) => <CommentCard key={c.id} comment={c} index={i} />)
               }
             </div>
           )}
 
-          {/* ── Tab: AJUSTES ── */}
+          {/* ── Tab: SETTINGS ── */}
           {tab === 'settings' && (
             <div style={{ border:'2px solid #111008', boxShadow:'6px 6px 0 #111008', background:'#FDFCF8' }}>
               <div style={{ height:24, background:'#111008', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 10px' }}>
-                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800', textTransform:'uppercase' }}>// EDITAR PERFIL</span>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800', textTransform:'uppercase' }}>// EDIT PROFILE</span>
                 <WindowControls />
               </div>
               <div style={{ padding:'20px 24px' }}>
@@ -383,10 +383,10 @@ export default function Profile() {
                     </div>
                     <div>
                       <button onClick={()=>fileRef.current?.click()} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', background:'transparent', color:'#111008', border:'2px solid #111008', boxShadow:'3px 3px 0 #111008', padding:'6px 14px', cursor:'pointer', marginBottom:6, display:'block' }}>
-                        CAMBIAR AVATAR
+                        CHANGE AVATAR
                       </button>
                       <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color: avatarError ? '#E8420A' : '#9A9288' }}>
-                        {avatarError || `JPEG · PNG · GIF · WEBP · máx ${MAX_AVATAR_MB} MB`}
+                        {avatarError || `JPEG · PNG · GIF · WEBP · max ${MAX_AVATAR_MB} MB`}
                       </span>
                       <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" style={{ display:'none' }} onChange={e=>handleAvatarFile(e.target.files[0])} />
                     </div>
@@ -396,7 +396,7 @@ export default function Profile() {
                 {/* Bio */}
                 <div style={{ marginBottom:18 }}>
                   <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'#6A6258', display:'block', marginBottom:8 }}>// BIO</label>
-                  <textarea value={bio} onChange={e=>setBio(e.target.value)} rows={4} placeholder="Cuéntanos algo sobre ti..."
+                  <textarea value={bio} onChange={e=>setBio(e.target.value)} rows={4} placeholder="Tell us something about you..."
                     style={{ width:'100%', border:'2px solid #C8C2B6', background:'#F2EFE8', outline:'none', padding:'10px 14px', fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#111008', lineHeight:1.6, resize:'vertical', transition:'border-color .15s', boxSizing:'border-box' }}
                     onFocus={e=>e.target.style.borderColor='#111008'} onBlur={e=>e.target.style.borderColor='#C8C2B6'} />
                 </div>
@@ -411,9 +411,9 @@ export default function Profile() {
                 <div style={{ display:'flex', alignItems:'center', gap:14 }}>
                   <button onClick={()=>save()} disabled={saving}
                     style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, textTransform:'uppercase', letterSpacing:'0.08em', background:saving?'#C8C2B6':'#6DC800', color:'#111008', border:`2px solid ${saving?'#C8C2B6':'#6DC800'}`, boxShadow:saving?'none':'4px 4px 0 #111008', padding:'10px 28px', cursor:saving?'not-allowed':'pointer', transition:'all .15s' }}>
-                    {saving ? 'GUARDANDO...' : 'GUARDAR'}
+                    {saving ? 'SAVING...' : 'SAVE'}
                   </button>
-                  {saved && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#0A9E88', letterSpacing:'0.1em' }}>// guardado ✓</span>}
+                  {saved && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#0A9E88', letterSpacing:'0.1em' }}>// saved ✓</span>}
                 </div>
 
               </div>
