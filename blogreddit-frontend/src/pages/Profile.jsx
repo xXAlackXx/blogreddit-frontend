@@ -10,66 +10,108 @@ function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }).toUpperCase()
 }
 
-function Skeleton({ h = 20, w = '100%', mb = 8 }) {
+function relTime(iso) {
+  if (!iso) return ''
+  const diff = (Date.now() - new Date(iso)) / 1000
+  if (diff < 3600)   return `hace ${Math.round(diff / 60)} min`
+  if (diff < 86400)  return `hace ${Math.round(diff / 3600)} horas`
+  if (diff < 172800) return 'ayer'
+  return `hace ${Math.round(diff / 86400)} días`
+}
+
+function readTime(content) {
+  return Math.max(1, Math.round((content || '').trim().split(/\s+/).length / 200))
+}
+
+function getRank(karma = 0) {
+  if (karma >= 500) return { rango:'VETERAN', nivel:'04', progress:100, label:'04 → MAX' }
+  if (karma >= 200) return { rango:'REGULAR', nivel:'03', progress:Math.round((karma-200)/3),   label:'03 → 04' }
+  if (karma >= 50)  return { rango:'ROOKIE',  nivel:'02', progress:Math.round((karma-50)/1.5),  label:'02 → 03' }
+  return              { rango:'RECRUIT', nivel:'01', progress:Math.min(100,Math.round(karma*2)), label:'01 → 02' }
+}
+
+const STRIP_COLORS = ['#6DC800','#1A6EC0','#E8420A','#F0B800','#0A9E88']
+
+/* ── Sub-components ── */
+function WindowControls() {
   return (
-    <div style={{
-      height: h, width: w, marginBottom: mb,
-      background: 'linear-gradient(90deg,#E8E4DC 25%,#D8D4CC 50%,#E8E4DC 75%)',
-      backgroundSize: '200% 100%',
-      animation: 'shimmer 1.4s infinite',
-    }} />
+    <div style={{ display:'flex', gap:5 }}>
+      {['#E8420A','#F0B800','#6DC800'].map((c,i) => (
+        <div key={i} style={{ width:8, height:8, background:c }} />
+      ))}
+    </div>
   )
 }
 
-/* ── Tab button ── */
-function Tab({ label, active, onClick }) {
+function PanelBox({ title, children }) {
   return (
-    <button onClick={onClick} style={{
-      fontFamily: "'JetBrains Mono',monospace", fontSize: 11, fontWeight: 700,
-      textTransform: 'uppercase', letterSpacing: '0.14em',
-      padding: '10px 24px', cursor: 'pointer',
-      background: active ? '#111008' : 'transparent',
-      color: active ? '#6DC800' : '#9A9288',
-      border: 'none',
-      borderBottom: active ? '2px solid #6DC800' : '2px solid transparent',
-      transition: 'all .15s',
-    }}
-    onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#FDFCF8' }}
-    onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#9A9288' }}
+    <div style={{ border:'2px solid #111008', boxShadow:'6px 6px 0 #6DC800', background:'#FDFCF8' }}>
+      <div style={{ height:24, background:'#111008', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 10px' }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800', textTransform:'uppercase' }}>{title}</span>
+        <WindowControls />
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function StatLine({ label, value, acid }) {
+  return (
+    <div style={{ display:'flex', fontFamily:"'JetBrains Mono',monospace", fontSize:12, lineHeight:1.8 }}>
+      <span style={{ color:'#9A9288', textTransform:'uppercase', flexShrink:0 }}>{label}</span>
+      <span style={{ color:'#C8C2B6', flex:1, overflow:'hidden', padding:'0 4px', whiteSpace:'nowrap' }}>{'................'.repeat(4)}</span>
+      <span style={{ color: acid ? '#6DC800' : '#111008', fontWeight:700, textTransform:'uppercase', flexShrink:0 }}>{value}</span>
+    </div>
+  )
+}
+
+function TabBtn({ label, active, onClick, last }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <button onClick={onClick}
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+      style={{
+        fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight: active ? 700 : 400,
+        color: active ? '#6DC800' : hov ? '#3A3630' : '#9A9288',
+        background: active ? '#111008' : hov ? '#FDFCF8' : 'transparent',
+        padding:'14px 24px', border:'none', cursor:'pointer',
+        borderRight: last ? 'none' : '2px solid #111008',
+        borderBottom: active ? '3px solid #6DC800' : '3px solid transparent',
+        transition:'all .15s',
+      }}
     >{label}</button>
   )
 }
 
-/* ── Compact post row ── */
-function PostRow({ post }) {
+function PostCard({ post, index }) {
   const score = (post.upvotes || 0) - (post.downvotes || 0)
+  const [hov, setHov] = useState(false)
   return (
-    <Link to={`/posts/${post.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-      <div style={{
-        border: '2px solid #111008', boxShadow: '3px 3px 0 #111008',
-        background: '#FDFCF8', padding: '12px 16px',
-        marginBottom: 10, transition: 'transform .12s, box-shadow .12s',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-      }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translate(-2px,-2px)'; e.currentTarget.style.boxShadow = '5px 5px 0 #111008' }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '3px 3px 0 #111008' }}
+    <Link to={`/posts/${post.id}`} style={{ textDecoration:'none', color:'inherit', display:'block' }}>
+      <article
+        onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+        style={{ border:'2px solid #111008', boxShadow: hov ? '6px 6px 0 #111008' : '4px 4px 0 #111008', background:'#FDFCF8', display:'grid', gridTemplateColumns:'4px 1fr', transform: hov ? 'translate(-2px,-2px)' : 'none', transition:'all .1s' }}
       >
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15, color: '#111008', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <div style={{ background: STRIP_COLORS[index % STRIP_COLORS.length] }} />
+        <div style={{ padding:'16px 20px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#9A9288', textTransform:'uppercase' }}>// FEED</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#9A9288' }}>{relTime(post.created_at)}</span>
+          </div>
+          <h2 style={{ fontFamily:"'Lora',serif", fontStyle:'italic', fontWeight:700, fontSize:17, lineHeight:1.3, color:'#111008', marginBottom:8 }}>
             {post.title}
-          </div>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, color: '#9A9288', marginTop: 4, letterSpacing: '0.08em' }}>
-            {fmtDate(post.created_at)}
+          </h2>
+          {post.content && (
+            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#9A9288', lineHeight:1.5, marginBottom:12, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+              {post.content}
+            </p>
+          )}
+          <div style={{ display:'flex', alignItems:'center', gap:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#3A3630' }}>
+            <span style={{ color: score >= 0 ? '#6DC800' : '#E8420A' }}>▲ {score > 0 ? '+' : ''}{score}</span>
+            <span>⏱ {readTime(post.content)} min lectura</span>
           </div>
         </div>
-        <div style={{
-          fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 700,
-          color: score > 0 ? '#6DC800' : score < 0 ? '#E8420A' : '#9A9288',
-          flexShrink: 0,
-        }}>
-          {score > 0 ? '+' : ''}{score}
-        </div>
-      </div>
+      </article>
     </Link>
   )
 }
@@ -80,15 +122,13 @@ export default function Profile() {
   const navigate  = useNavigate()
   const qc        = useQueryClient()
 
-  const [tab,    setTab]    = useState('posts')
-  const [bio,    setBio]    = useState('')
-  const [email,  setEmail]  = useState('')
-  const [saved,  setSaved]  = useState(false)
+  const [tab,   setTab]   = useState('posts')
+  const [bio,   setBio]   = useState('')
+  const [email, setEmail] = useState('')
+  const [saved, setSaved] = useState(false)
 
-  /* Guard */
   useEffect(() => { if (!user) navigate('/login') }, [user, navigate])
 
-  /* Data */
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['me'],
     queryFn: () => api.get('/users/me/').then(r => r.data),
@@ -103,168 +143,203 @@ export default function Profile() {
     staleTime: 30_000,
   })
 
-  /* Sync form when profile loads */
   useEffect(() => {
     if (profile) { setBio(profile.bio || ''); setEmail(profile.email || '') }
   }, [profile])
 
-  /* Save mutation */
   const { mutate: save, isPending: saving } = useMutation({
     mutationFn: () => api.patch('/users/me/', { bio, email }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['me'] }); setSaved(true); setTimeout(() => setSaved(false), 2500) },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['me'] })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+    },
   })
 
-  const posts = Array.isArray(postsData) ? postsData : postsData?.results || []
+  const posts = Array.isArray(postsData) ? postsData : (postsData?.results || [])
+  const rank  = getRank(profile?.karma)
 
   if (!user) return null
 
   return (
-    <div style={{ background: '#F2EFE8', minHeight: '100vh', padding: '32px 24px 60px' }}>
-      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+    <div style={{ background:'#ECEAE2', minHeight:'100vh', padding:'32px 20px 60px' }}>
+      <div className="profile-grid" style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'320px 1fr', gap:40, alignItems:'start' }}>
 
-        {/* ── Profile Header ── */}
-        <div style={{ border: '2px solid #111008', boxShadow: '6px 6px 0 #111008', background: '#FDFCF8', padding: '28px 32px', marginBottom: 20, display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+        {/* ══ LEFT COLUMN ══ */}
+        <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
 
-          {/* Avatar */}
-          <div style={{
-            width: 80, height: 80, flexShrink: 0,
-            background: 'linear-gradient(135deg,#E8420A,#F0B800)',
-            border: '3px solid #111008', boxShadow: '4px 4px 0 #111008',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 32, color: '#111008' }}>
-              {user.username?.[0]?.toUpperCase() || 'U'}
-            </span>
-          </div>
+          {/* Avatar Panel */}
+          <PanelBox title="// USER.EXE">
+            <div className="avatar-area">
+              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:80, color:'#fff', position:'relative', zIndex:2 }}>
+                {user.username?.[0]?.toUpperCase() || 'U'}
+              </span>
+            </div>
+            <div style={{ padding:12, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
+              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:'#111008' }}>
+                {profileLoading ? '...' : profile?.username}
+              </span>
+              <div style={{ display:'flex', alignItems:'center', gap:6, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800' }}>
+                <div className="blinking-dot" />
+                // ONLINE
+              </div>
+            </div>
+          </PanelBox>
 
-          {/* Info */}
-          <div style={{ flex: 1 }}>
-            {profileLoading ? (
-              <>
-                <Skeleton h={28} w={180} mb={10} />
-                <Skeleton h={14} w={260} mb={14} />
-                <Skeleton h={32} w={300} />
-              </>
-            ) : (
-              <>
-                <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 28, letterSpacing: '-0.02em', color: '#111008', margin: 0, lineHeight: 1 }}>
-                  {profile?.username}
-                </h1>
-                <p style={{ fontFamily: "'Lora',serif", fontStyle: 'italic', fontSize: 15, color: profile?.bio ? '#3A3630' : '#9A9288', margin: '10px 0 16px' }}>
-                  {profile?.bio || 'Sin bio aún...'}
-                </p>
-
-                {/* Stats */}
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  {[
-                    { label: 'POSTS',    value: profile?.posts_count    ?? 0 },
-                    { label: 'COMMENTS', value: profile?.comments_count ?? 0 },
-                    { label: 'KARMA',    value: profile?.karma          ?? 0, acid: true },
-                  ].map(s => (
-                    <div key={s.label} style={{ border: '2px solid #111008', boxShadow: '3px 3px 0 #111008', background: s.acid ? '#6DC800' : '#E8E4DC', padding: '6px 14px', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 70 }}>
-                      <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 18, fontWeight: 700, color: '#111008', lineHeight: 1 }}>{s.value}</span>
-                      <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 9,  fontWeight: 700, color: '#6A6258', letterSpacing: '0.16em', marginTop: 2 }}>{s.label}</span>
-                    </div>
-                  ))}
+          {/* Stats Panel */}
+          <PanelBox title="// SYSTEM.STATS">
+            <div style={{ padding:15 }}>
+              <StatLine label="POSTS"       value={profile?.posts_count    ?? 0} />
+              <StatLine label="COMENTARIOS" value={profile?.comments_count ?? 0} />
+              <StatLine label="KARMA"       value={profile?.karma          ?? 0} acid />
+              <StatLine label="RANGO"       value={rank.rango} />
+              <StatLine label="NIVEL"       value={rank.nivel} />
+              <div style={{ marginTop:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#9A9288' }}>
+                <span>NIVEL {rank.label}</span>
+                <div style={{ height:6, background:'#C8C2B6', marginTop:4 }}>
+                  <div style={{ height:'100%', background:'#6DC800', width:`${Math.min(rank.progress,100)}%`, transition:'width 1s ease' }} />
                 </div>
+              </div>
+            </div>
+          </PanelBox>
 
-                {/* Join date */}
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, color: '#9A9288', letterSpacing: '0.12em', marginTop: 12 }}>
-                  // DESDE: {fmtDate(profile?.created_at)}
-                </div>
-              </>
-            )}
-          </div>
+          {/* Tags Panel */}
+          <PanelBox title="// INTERESES">
+            <div style={{ padding:15 }}>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+                {[{t:'#feed',c:'#E8420A'},{t:'#blog',c:'#1A6EC0'},{t:'#decay84',c:'#6DC800'},{t:'#community',c:'#0A9E88'}].map(({t,c})=>(
+                  <span key={t} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, padding:'2px 8px', background:c, color:c==='#6DC800'?'#111008':'#fff' }}>{t}</span>
+                ))}
+              </div>
+            </div>
+          </PanelBox>
+
         </div>
 
-        {/* ── Tabs ── */}
-        <div style={{ border: '2px solid #111008', boxShadow: '6px 6px 0 #111008', background: '#FDFCF8', overflow: 'hidden' }}>
+        {/* ══ RIGHT COLUMN ══ */}
+        <div style={{ display:'flex', flexDirection:'column', gap:30 }}>
 
-          {/* Tab bar */}
-          <div style={{ display: 'flex', borderBottom: '2px solid #111008', background: '#E8E4DC' }}>
-            {[{id:'posts', label:'POSTS'}, {id:'comments', label:'COMENTARIOS'}, {id:'settings', label:'AJUSTES'}].map(t => (
-              <Tab key={t.id} label={t.label} active={tab === t.id} onClick={() => setTab(t.id)} />
+          {/* Identity header */}
+          <header>
+            {profileLoading ? (
+              <div style={{ height:40, background:'#E8E4DC', width:240, marginBottom:10 }} />
+            ) : (
+              <>
+                <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:32, letterSpacing:'-0.02em', color:'#111008', marginBottom:10 }}>
+                  {profile?.username}
+                </h1>
+                <div style={{ marginBottom:6 }}>
+                  <span style={{ fontFamily:"'Lora',serif", fontStyle:'italic', fontSize:14, color:'#9A9288' }}>
+                    {profile?.bio || 'Sin bio aún...'}
+                  </span>
+                  <button onClick={()=>setTab('settings')} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#111008', background:'none', border:'none', cursor:'pointer', marginLeft:8, textDecoration:'underline', padding:0 }}>
+                    [EDITAR PERFIL]
+                  </button>
+                </div>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#9A9288' }}>
+                  Miembro desde {fmtDate(profile?.created_at)}
+                </span>
+              </>
+            )}
+          </header>
+
+          {/* Tabs */}
+          <div style={{ background:'#E8E4DC', border:'2px solid #111008', boxShadow:'4px 4px 0 #111008', display:'flex' }}>
+            {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMENTARIOS'},{id:'settings',l:'AJUSTES'}].map((t,i,arr)=>(
+              <TabBtn key={t.id} label={t.l} active={tab===t.id} onClick={()=>setTab(t.id)} last={i===arr.length-1} />
             ))}
           </div>
 
-          {/* Tab content */}
-          <div style={{ padding: '20px 24px' }}>
+          {/* ── Tab: POSTS ── */}
+          {tab === 'posts' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+              {postsLoading
+                ? [1,2,3].map(i=><div key={i} style={{ height:120, border:'2px solid #111008', background:'#E8E4DC' }} />)
+                : posts.length === 0
+                  ? (
+                    <div style={{ padding:20, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:'#6DC800', lineHeight:1.8, borderTop:'2px dashed #C8C2B6', marginTop:10 }}>
+                      <p>&gt; // EJECUTANDO BÚSQUEDA...</p>
+                      <p>&gt; // 0 RESULTADOS</p>
+                      <p>&gt; // FIN DE TRANSMISIÓN <span className="blinking-cursor">█</span></p>
+                    </div>
+                  )
+                  : posts.map((p,i) => <PostCard key={p.id} post={p} index={i} />)
+              }
+            </div>
+          )}
 
-            {/* POSTS */}
-            {tab === 'posts' && (
-              postsLoading ? (
-                <>{[1,2,3].map(i => <Skeleton key={i} h={60} mb={10} />)}</>
-              ) : posts.length === 0 ? (
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: '#9A9288', letterSpacing: '0.1em', padding: '20px 0' }}>
-                  // sin publicaciones todavía
-                </div>
-              ) : (
-                posts.map(p => <PostRow key={p.id} post={p} />)
-              )
-            )}
+          {/* ── Tab: COMENTARIOS ── */}
+          {tab === 'comments' && (
+            <div style={{ padding:20, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:'#6DC800', lineHeight:1.8, borderTop:'2px dashed #C8C2B6', marginTop:10 }}>
+              <p>&gt; // MÓDULO NO DISPONIBLE...</p>
+              <p>&gt; // PRÓXIMAMENTE <span className="blinking-cursor">█</span></p>
+            </div>
+          )}
 
-            {/* COMENTARIOS */}
-            {tab === 'comments' && (
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: '#9A9288', letterSpacing: '0.1em', padding: '20px 0' }}>
-                // próximamente
+          {/* ── Tab: AJUSTES ── */}
+          {tab === 'settings' && (
+            <div style={{ border:'2px solid #111008', boxShadow:'6px 6px 0 #111008', background:'#FDFCF8' }}>
+              <div style={{ height:24, background:'#111008', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 10px' }}>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800', textTransform:'uppercase' }}>// EDITAR PERFIL</span>
+                <WindowControls />
               </div>
-            )}
-
-            {/* AJUSTES */}
-            {tab === 'settings' && (
-              <div style={{ maxWidth: 480 }}>
-                <div style={{ marginBottom: 18 }}>
-                  <label style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#6A6258', display: 'block', marginBottom: 8 }}>
-                    // BIO
-                  </label>
-                  <textarea
-                    value={bio} onChange={e => setBio(e.target.value)} rows={4}
-                    placeholder="Cuéntanos algo sobre ti..."
-                    style={{ width: '100%', border: '2px solid #C8C2B6', background: '#F2EFE8', outline: 'none', padding: '10px 14px', fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: '#111008', lineHeight: 1.6, resize: 'vertical', transition: 'border-color .15s', boxSizing: 'border-box' }}
-                    onFocus={e => e.target.style.borderColor = '#111008'}
-                    onBlur={e  => e.target.style.borderColor = '#C8C2B6'}
-                  />
+              <div style={{ padding:'20px 24px', maxWidth:480 }}>
+                <div style={{ marginBottom:18 }}>
+                  <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'#6A6258', display:'block', marginBottom:8 }}>// BIO</label>
+                  <textarea value={bio} onChange={e=>setBio(e.target.value)} rows={4} placeholder="Cuéntanos algo sobre ti..."
+                    style={{ width:'100%', border:'2px solid #C8C2B6', background:'#F2EFE8', outline:'none', padding:'10px 14px', fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#111008', lineHeight:1.6, resize:'vertical', transition:'border-color .15s', boxSizing:'border-box' }}
+                    onFocus={e=>e.target.style.borderColor='#111008'} onBlur={e=>e.target.style.borderColor='#C8C2B6'} />
                 </div>
-
-                <div style={{ marginBottom: 24 }}>
-                  <label style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#6A6258', display: 'block', marginBottom: 8 }}>
-                    // EMAIL
-                  </label>
-                  <input
-                    type="email" value={email} onChange={e => setEmail(e.target.value)}
-                    placeholder="tu@email.com"
-                    style={{ width: '100%', border: '2px solid #C8C2B6', background: '#F2EFE8', outline: 'none', padding: '10px 14px', fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: '#111008', transition: 'border-color .15s', boxSizing: 'border-box' }}
-                    onFocus={e => e.target.style.borderColor = '#111008'}
-                    onBlur={e  => e.target.style.borderColor = '#C8C2B6'}
-                  />
+                <div style={{ marginBottom:24 }}>
+                  <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'#6A6258', display:'block', marginBottom:8 }}>// EMAIL</label>
+                  <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="tu@email.com"
+                    style={{ width:'100%', border:'2px solid #C8C2B6', background:'#F2EFE8', outline:'none', padding:'10px 14px', fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#111008', transition:'border-color .15s', boxSizing:'border-box' }}
+                    onFocus={e=>e.target.style.borderColor='#111008'} onBlur={e=>e.target.style.borderColor='#C8C2B6'} />
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <button
-                    onClick={() => save()} disabled={saving}
-                    style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', background: saving ? '#C8C2B6' : '#6DC800', color: '#111008', border: `2px solid ${saving ? '#C8C2B6' : '#6DC800'}`, boxShadow: saving ? 'none' : '4px 4px 0 #111008', padding: '10px 28px', cursor: saving ? 'not-allowed' : 'pointer', transition: 'all .15s' }}
-                    onMouseEnter={e => { if (!saving) { e.currentTarget.style.transform = 'translate(-1px,-1px)'; e.currentTarget.style.boxShadow = '6px 6px 0 #111008' } }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = 'none'; if (!saving) e.currentTarget.style.boxShadow = '4px 4px 0 #111008' }}
-                  >
+                <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                  <button onClick={()=>save()} disabled={saving}
+                    style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, textTransform:'uppercase', letterSpacing:'0.08em', background:saving?'#C8C2B6':'#6DC800', color:'#111008', border:`2px solid ${saving?'#C8C2B6':'#6DC800'}`, boxShadow:saving?'none':'4px 4px 0 #111008', padding:'10px 28px', cursor:saving?'not-allowed':'pointer', transition:'all .15s' }}>
                     {saving ? 'GUARDANDO...' : 'GUARDAR'}
                   </button>
-                  {saved && (
-                    <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: '#0A9E88', letterSpacing: '0.1em' }}>
-                      // cambios guardados
-                    </span>
-                  )}
+                  {saved && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#0A9E88', letterSpacing:'0.1em' }}>// guardado ✓</span>}
                 </div>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          )}
 
+        </div>
       </div>
 
       <style>{`
-        @keyframes shimmer {
-          0%   { background-position: 200% 0 }
-          100% { background-position: -200% 0 }
+        .avatar-area {
+          height: 200px;
+          background: #F0B800;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+        .avatar-area::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: repeating-linear-gradient(
+            0deg,
+            rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px,
+            transparent 1px, transparent 3px
+          );
+          z-index: 1;
+        }
+        .blinking-dot {
+          width: 7px; height: 7px;
+          background: #6DC800;
+          animation: blink 1s steps(2, start) infinite;
+        }
+        .blinking-cursor { animation: blink 1s steps(2, start) infinite; }
+        @keyframes blink { to { visibility: hidden; } }
+        @media (max-width: 860px) {
+          .profile-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>
