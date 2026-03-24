@@ -1,12 +1,13 @@
 import { useState, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import DOMPurify from 'dompurify'
 import api from '../api/axios'
 import { useAuth } from '../context/AuthContext'
 
 /* ── Compact Markdown Parser ── */
 function parseMd(raw) {
   if (!raw.trim()) return ''
-  return raw
+  const html = raw
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/```([\s\S]*?)```/g, (_,c)=>`<pre><code>${c.trim()}</code></pre>`)
     .replace(/^### (.+)$/gm,'<h3>$1</h3>')
@@ -21,6 +22,7 @@ function parseMd(raw) {
     .replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" style="color:#1A6EC0">$1</a>')
     .replace(/^(?!<[hbpuod]).+$/gm,'<p>$&</p>')
     .replace(/\n{2,}/g,'')
+  return DOMPurify.sanitize(html, { ALLOWED_TAGS: ['h1','h2','h3','p','strong','em','del','code','pre','blockquote','hr','a'], ALLOWED_ATTR: ['href','style'], ALLOW_DATA_ATTR: false })
 }
 
 const ALLOWED = ['image/jpeg','image/png','image/gif','image/webp']
