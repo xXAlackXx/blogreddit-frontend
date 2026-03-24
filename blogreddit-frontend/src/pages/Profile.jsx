@@ -214,6 +214,12 @@ export default function Profile() {
       setAvatarError(`Maximum ${MAX_AVATAR_MB} MB`)
       return
     }
+    // GIFs lose animation when drawn on canvas — skip crop and use as-is
+    if (file.type === 'image/gif') {
+      setAvatarFile(file)
+      setAvatarPrev(URL.createObjectURL(file))
+      return
+    }
     setCropMime(file.type)
     setCropSrc(URL.createObjectURL(file))
   }
