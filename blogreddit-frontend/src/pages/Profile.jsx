@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../context/AuthContext'
+import AvatarCropModal from '../components/AvatarCropModal'
 
 import api from '../api/axios'
 
@@ -163,6 +164,8 @@ export default function Profile() {
   const [avatarFile,  setAvatarFile]  = useState(null)
   const [avatarPrev,  setAvatarPrev]  = useState(null)
   const [avatarError, setAvatarError] = useState('')
+  const [cropSrc,     setCropSrc]     = useState(null)   // raw src for crop modal
+  const [cropMime,    setCropMime]    = useState('image/jpeg')
   const [saved,       setSaved]       = useState(false)
   const [saveError,   setSaveError]   = useState('')
 
@@ -199,7 +202,7 @@ export default function Profile() {
     }
   }, [profile])
 
-  /* ── Avatar validation ── */
+  /* ── Avatar validation → open crop modal ── */
   const handleAvatarFile = (file) => {
     if (!file) return
     setAvatarError('')
@@ -211,8 +214,15 @@ export default function Profile() {
       setAvatarError(`Maximum ${MAX_AVATAR_MB} MB`)
       return
     }
+    setCropMime(file.type)
+    setCropSrc(URL.createObjectURL(file))
+  }
+
+  const handleCropConfirm = (blob) => {
+    const file = new File([blob], 'avatar.jpg', { type: cropMime })
     setAvatarFile(file)
-    setAvatarPrev(URL.createObjectURL(file))
+    setAvatarPrev(URL.createObjectURL(blob))
+    setCropSrc(null)
   }
 
   /* ── Save mutation ── */
@@ -422,6 +432,15 @@ export default function Profile() {
 
         </div>
       </div>
+
+      {cropSrc && (
+        <AvatarCropModal
+          src={cropSrc}
+          mimeType={cropMime}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
 
       <style>{`
         .avatar-area {
