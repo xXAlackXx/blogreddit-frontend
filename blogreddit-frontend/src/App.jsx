@@ -9,6 +9,7 @@ import AuthPage from './pages/AuthPage'
 import CreatePost from './pages/CreatePost'
 import PostDetail from './pages/PostDetail'
 import Profile from './pages/Profile'
+import PublicProfile from './pages/PublicProfile'
 
 const queryClient = new QueryClient()
 
@@ -42,6 +43,7 @@ function App() {
               <Route path="/create" element={<CreatePost />} />
               <Route path="/posts/:id" element={<PostDetail />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/u/:username" element={<PublicProfile />} />
             </Route>
           </Routes>
         </BrowserRouter>

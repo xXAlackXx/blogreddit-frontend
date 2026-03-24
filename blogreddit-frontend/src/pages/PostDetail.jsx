@@ -80,7 +80,10 @@ export default function PostDetail() {
                   : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'#111008' }}>{post.author?.[0]?.toUpperCase()}</span>
                 }
               </div>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700, color:'#3A3630' }}>{post.author}</span>
+              <Link to={`/u/${post.author}`} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700, color:'#3A3630', textDecoration:'none' }}
+                onMouseEnter={e=>e.currentTarget.style.color='#6DC800'}
+                onMouseLeave={e=>e.currentTarget.style.color='#3A3630'}
+              >{post.author}</Link>
               <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#9A9288' }}>{timeAgo(post.created_at)}</span>
             </div>
             <h1 style={{ fontFamily:"'Lora',Georgia,serif", fontStyle:'italic', fontWeight:700, fontSize:'clamp(20px,3vw,26px)', color:'#111008', lineHeight:1.3, marginBottom:16 }}>
@@ -161,9 +164,10 @@ export default function PostDetail() {
               </div>
               <div style={{ flex:1 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
-                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700, color:'#111008' }}>
-                    {c.author}
-                  </span>
+                  <Link to={`/u/${c.author}`} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700, color:'#111008', textDecoration:'none' }}
+                    onMouseEnter={e=>e.currentTarget.style.color='#6DC800'}
+                    onMouseLeave={e=>e.currentTarget.style.color='#111008'}
+                  >{c.author}</Link>
                   <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#9A9288' }}>
                     {timeAgo(c.created_at)}
                   </span>

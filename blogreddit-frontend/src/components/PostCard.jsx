@@ -121,9 +121,12 @@ export default function PostCard({ post, onVote, index = 0, featured = false }) 
         <div className="post-card-content" style={{ padding:'12px 44px 12px 14px', flex:1, minWidth:0 }}>
           {/* Meta */}
           <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8, flexWrap:'wrap' }}>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#3A3630', fontWeight:700 }}>
+            <Link to={`/u/${post.author}`} onClick={e => e.stopPropagation()} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#3A3630', fontWeight:700, textDecoration:'none' }}
+              onMouseEnter={e=>e.currentTarget.style.color='#6DC800'}
+              onMouseLeave={e=>e.currentTarget.style.color='#3A3630'}
+            >
               {post.author}
-            </span>
+            </Link>
             <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#9A9288' }}>
               {timeAgo(post.created_at)}
             </span>
