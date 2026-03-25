@@ -27,11 +27,11 @@ export default function Footer() {
           <div>
             <div style={{ marginBottom:10 }}>
               <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:20, color:'#fff', letterSpacing:'-0.5px' }}>
-                BLOG<span style={{ color:'#6DC800' }}>R</span>EDDIT
+                ONYX<span style={{ color:'#6DC800' }}> </span>BLOG
               </span>
             </div>
             <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6A6258', letterSpacing:'0.12em', textTransform:'uppercase', marginBottom:14 }}>
-              // EST. 2025 / DECAY—84
+              // EST. 2026 / DECAY—84
             </div>
             <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:'#6A6258', lineHeight:1.7, maxWidth:240, margin:0 }}>
               A brutalist community platform for ideas, discourse, and leaving your mark on the wall.
@@ -95,7 +95,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
           <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#3A3630', letterSpacing:'0.08em' }}>
-            © 2025 BLOGREDDIT — DECAY—84 EDITION
+            © 2026 ONYX BLOG — DECAY—84 EDITION
           </span>
           <div style={{ display:'flex', gap:6 }}>
             {['#6DC800','#E8420A','#F0B800','#1A6EC0','#0A9E88'].map(c=>(

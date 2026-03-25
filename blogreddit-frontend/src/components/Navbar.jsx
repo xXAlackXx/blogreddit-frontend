@@ -23,12 +23,12 @@ export default function Navbar() {
             fontFamily: "'Space Grotesk', sans-serif",
             fontWeight: 700, fontSize: 18, color: '#fff', letterSpacing:'-0.5px'
           }}>
-            BLOG<span style={{ color:'#6DC800' }}>R</span>EDDIT
+            ONYX<span style={{ color:'#6DC800' }}> </span>BLOG
           </span>
           <span style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 9, color: '#6A6258', letterSpacing:'0.12em', textTransform:'uppercase'
-          }}>EST. 2025 / DECAY—84</span>
+          }}>EST. 2026 / DECAY—84</span>
         </Link>
 
         {/* Spacer */}
