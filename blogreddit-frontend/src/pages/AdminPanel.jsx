@@ -202,8 +202,9 @@ export default function AdminPanel() {
   const [query, setQuery] = useState('')
   const [confirm, setConfirm] = useState(null) // { item, type }
 
-  // Guard
+  // Guard — wait until profile is loaded (role is present) before checking
   if (!user) { navigate('/login'); return null }
+  if (user.role === undefined) return null // still loading /users/me/
   if (user.role !== 'admin') { navigate('/'); return null }
 
   const { data: stats } = useQuery({
