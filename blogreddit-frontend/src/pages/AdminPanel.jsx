@@ -264,13 +264,17 @@ export default function AdminPanel() {
 
   return (
     <div style={{ background: '#0A0A06', minHeight: '100vh', padding: '32px 20px 60px' }}>
-      {/* Ghost bg text */}
+      {/* Background image right side */}
       <div style={{
-        position: 'fixed', right: -20, top: 80, zIndex: 0,
-        fontFamily: "'Space Grotesk',sans-serif", fontSize: 180, fontWeight: 800,
-        color: 'transparent', WebkitTextStroke: '1px rgba(232,66,10,0.04)',
-        userSelect: 'none', lineHeight: 1, pointerEvents: 'none',
-      }}>CMD</div>
+        position: 'fixed', right: 0, top: 0, bottom: 0, zIndex: 0,
+        width: '40vw', pointerEvents: 'none',
+        backgroundImage: 'url(/admin-bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.4) 100%)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.4) 100%)',
+        opacity: 0.35,
+      }} />
 
       <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
