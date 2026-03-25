@@ -27,7 +27,9 @@ export default function Footer() {
           <div>
             <div style={{ marginBottom:10 }}>
               <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:20, color:'#fff', letterSpacing:'-0.5px' }}>
-                ONYX<span style={{ color:'#6DC800' }}> </span>BLOG
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 90" height="26" style={{ display:'block' }}>
+                  <text x="200" y="68" fontFamily="'Impact', 'Arial Black', sans-serif" fontSize="70" fontWeight="900" letterSpacing="14" textAnchor="middle" fill="none" stroke="#7CB342" strokeWidth="2">ONYX</text>
+                </svg>
               </span>
             </div>
             <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6A6258', letterSpacing:'0.12em', textTransform:'uppercase', marginBottom:14 }}>
