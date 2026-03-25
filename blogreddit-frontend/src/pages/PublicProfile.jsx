@@ -79,7 +79,7 @@ function TabBtn({ label, active, onClick, last }) {
   )
 }
 
-function PostCard({ post, index }) {
+function PostCard({ post, index, username }) {
   const score = (post.upvotes || 0) - (post.downvotes || 0)
   const [hov, setHov] = useState(false)
   return (
@@ -269,7 +269,7 @@ export default function PublicProfile() {
                 ? [1,2,3].map(i => <div key={i} style={{ height:120, border:'2px solid #111008', background:'#E8E4DC' }} />)
                 : posts.length === 0
                   ? <TerminalEmpty lines={['RUNNING SEARCH...','// 0 RESULTS','// END OF TRANSMISSION']} />
-                  : posts.map((p,i) => <PostCard key={p.id} post={p} index={i} />)
+                  : posts.map((p,i) => <PostCard key={p.id} post={p} index={i} username={username} />)
               }
             </div>
           )}
