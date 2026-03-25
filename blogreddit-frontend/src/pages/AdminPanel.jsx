@@ -264,17 +264,6 @@ export default function AdminPanel() {
 
   return (
     <div style={{ background: '#0A0A06', minHeight: '100vh', padding: '32px 20px 60px' }}>
-      {/* Background image right side */}
-      <img src="/admin-bg.png" alt="" style={{
-        position: 'fixed', right: 0, bottom: 0, zIndex: 0,
-        width: '420px', height: 'auto',
-        pointerEvents: 'none',
-        opacity: 0.85,
-        filter: 'brightness(1.4) saturate(1.6) contrast(1.1)',
-        maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
-        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
-        imageRendering: 'auto',
-      }} />
 
       <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
