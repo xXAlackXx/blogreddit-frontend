@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import api from '../api/axios'
 import { useAuth } from '../context/AuthContext'
@@ -19,6 +19,15 @@ export default function PostDetail() {
   const { id } = useParams()
   const { user } = useAuth()
   const queryClient = useQueryClient()
+  const location = useLocation()
+  const from = location.state?.from  // 'profile' | 'myprofile' | undefined
+  const fromUser = location.state?.username
+  const backTo   = from === 'profile'   ? `/u/${fromUser}`
+                 : from === 'myprofile' ? '/profile'
+                 : '/'
+  const backLabel = from === 'profile'   ? `← BACK TO ${fromUser?.toUpperCase()}'S PROFILE`
+                  : from === 'myprofile' ? '← BACK TO MY PROFILE'
+                  : '← BACK TO FEED'
   const [comment, setComment] = useState('')
 
   const { data: post, isLoading } = useQuery({
@@ -56,12 +65,12 @@ export default function PostDetail() {
   return (
     <div style={{ maxWidth:760, margin:'24px auto', padding:'0 16px' }} className="slam">
       {/* Back */}
-      <Link to="/" style={{
+      <Link to={backTo} style={{
         display:'inline-flex', alignItems:'center', gap:8,
         fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700,
         color:'#9A9288', textDecoration:'none', textTransform:'uppercase', letterSpacing:'0.08em',
         marginBottom:16, padding:'6px 0',
-      }}>← BACK TO FEED</Link>
+      }}>{backLabel}</Link>
 
       {/* Post */}
       <div style={{ background:'#FDFCF8', border:'2px solid #111008', boxShadow:'5px 5px 0 #111008', overflow:'hidden', marginBottom:16 }}>

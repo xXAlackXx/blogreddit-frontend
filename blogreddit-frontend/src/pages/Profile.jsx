@@ -88,7 +88,7 @@ function PostCard({ post, index }) {
   const score = (post.upvotes || 0) - (post.downvotes || 0)
   const [hov, setHov] = useState(false)
   return (
-    <Link to={`/posts/${post.id}`} style={{ textDecoration:'none', color:'inherit', display:'block' }}>
+    <Link to={`/posts/${post.id}`} state={{ from: 'myprofile' }} style={{ textDecoration:'none', color:'inherit', display:'block' }}>
       <article
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{ border:'2px solid #111008', boxShadow: hov ? '6px 6px 0 #111008' : '4px 4px 0 #111008', background:'#FDFCF8', display:'grid', gridTemplateColumns:'4px 1fr', transform: hov ? 'translate(-2px,-2px)' : 'none', transition:'all .1s' }}
@@ -120,7 +120,7 @@ function PostCard({ post, index }) {
 function CommentCard({ comment, index }) {
   const [hov, setHov] = useState(false)
   return (
-    <Link to={`/posts/${comment.post_id}`} style={{ textDecoration:'none', color:'inherit', display:'block' }}>
+    <Link to={`/posts/${comment.post_id}`} state={{ from: 'myprofile' }} style={{ textDecoration:'none', color:'inherit', display:'block' }}>
       <article
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
         style={{ border:'2px solid #111008', boxShadow: hov ? '6px 6px 0 #111008' : '4px 4px 0 #111008', background:'#FDFCF8', display:'grid', gridTemplateColumns:'4px 1fr', transform: hov ? 'translate(-2px,-2px)' : 'none', transition:'all .1s' }}
