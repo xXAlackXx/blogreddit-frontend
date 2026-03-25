@@ -10,6 +10,7 @@ import CreatePost from './pages/CreatePost'
 import PostDetail from './pages/PostDetail'
 import Profile from './pages/Profile'
 import PublicProfile from './pages/PublicProfile'
+import AdminPanel from './pages/AdminPanel'
 
 const queryClient = new QueryClient()
 
@@ -44,6 +45,7 @@ function App() {
               <Route path="/posts/:id" element={<PostDetail />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/u/:username" element={<PublicProfile />} />
+              <Route path="/admin-panel" element={<AdminPanel />} />
             </Route>
           </Routes>
         </BrowserRouter>

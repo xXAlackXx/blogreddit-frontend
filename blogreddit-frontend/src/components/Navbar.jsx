@@ -82,6 +82,18 @@ export default function Navbar() {
                   }
                 </div>
               </Link>
+              {user.role === 'admin' && (
+                <Link to="/admin-panel" style={{
+                  background: '#E8420A', color: '#0A0A06',
+                  fontFamily: "'JetBrains Mono',monospace", fontWeight: 700, fontSize: 11,
+                  textTransform: 'uppercase', letterSpacing: '0.08em',
+                  padding: '5px 10px', borderRadius: 2, textDecoration: 'none',
+                  border: '2px solid #E8420A', transition: 'all .15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#E8420A' }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#E8420A'; e.currentTarget.style.color = '#0A0A06' }}
+                >⚡ CMD</Link>
+              )}
               <button onClick={handleLogout} style={{
                 background:'none', border:'1px solid #6A6258',
                 color:'#9A9288', padding:'6px 12px', borderRadius:2,
