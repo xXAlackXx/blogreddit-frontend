@@ -263,7 +263,7 @@ export default function Profile() {
   if (!user) return null
 
   return (
-    <div style={{ background:'#ECEAE2', minHeight:'100vh', padding:'32px 20px 60px' }}>
+    <div style={{ background:'#ECEAE2', minHeight:'100vh', padding:'20px 12px 60px' }}>
       <div className="profile-grid" style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'320px 1fr', gap:40, alignItems:'start' }}>
 
         {/* ══ LEFT COLUMN ══ */}
@@ -347,7 +347,7 @@ export default function Profile() {
           </header>
 
           {/* Tabs */}
-          <div style={{ background:'#E8E4DC', border:'2px solid #111008', boxShadow:'4px 4px 0 #111008', display:'flex' }}>
+          <div className="tab-bar" style={{ background:'#E8E4DC', border:'2px solid #111008', boxShadow:'4px 4px 0 #111008', display:'flex' }}>
             {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMMENTS'},{id:'settings',l:'SETTINGS'}].map((t,i,arr)=>(
               <TabBtn key={t.id} label={t.l} active={tab===t.id} onClick={()=>setTab(t.id)} last={i===arr.length-1} />
             ))}
@@ -384,12 +384,12 @@ export default function Profile() {
                 <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800', textTransform:'uppercase' }}>// EDIT PROFILE</span>
                 <WindowControls />
               </div>
-              <div style={{ padding:'20px 24px' }}>
+              <div className="settings-panel-body" style={{ padding:'20px 24px' }}>
 
                 {/* Avatar upload */}
                 <div style={{ marginBottom:24 }}>
                   <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'#6A6258', display:'block', marginBottom:10 }}>// AVATAR</label>
-                  <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+                  <div className="settings-avatar-row" style={{ display:'flex', alignItems:'center', gap:16 }}>
                     {/* Preview */}
                     <div style={{ width:64, height:64, border:'2px solid #111008', boxShadow:'3px 3px 0 #111008', overflow:'hidden', flexShrink:0, background:'linear-gradient(135deg,#E8420A,#F0B800)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                       {avatarSrc
@@ -478,7 +478,19 @@ export default function Profile() {
         .blinking-cursor { animation: blink 1s steps(2, start) infinite; }
         @keyframes blink { to { visibility: hidden; } }
         @media (max-width: 860px) {
-          .profile-grid { grid-template-columns: 1fr !important; }
+          .profile-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+          .avatar-area { height: 160px !important; }
+          .settings-avatar-row { flex-wrap: wrap !important; }
+          .settings-panel-body { padding: 14px 16px !important; }
+          .tab-bar { overflow-x: auto !important; }
+          .tab-bar button { padding: 12px 16px !important; font-size: 10px !important; white-space: nowrap; }
+        }
+        @media (max-width: 480px) {
+          .profile-grid { gap: 14px !important; }
+          .settings-panel-body { padding: 12px !important; }
         }
       `}</style>
     </div>

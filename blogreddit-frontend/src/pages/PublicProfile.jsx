@@ -180,7 +180,7 @@ export default function PublicProfile() {
   )
 
   return (
-    <div style={{ background:'#ECEAE2', minHeight:'100vh', padding:'32px 20px 60px' }}>
+    <div style={{ background:'#ECEAE2', minHeight:'100vh', padding:'20px 12px 60px' }}>
       <div className="profile-grid" style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'320px 1fr', gap:40, alignItems:'start' }}>
 
         {/* ══ LEFT COLUMN ══ */}
@@ -240,7 +240,7 @@ export default function PublicProfile() {
             {profileLoading
               ? <div style={{ height:40, background:'#E8E4DC', width:240, marginBottom:10 }} />
               : <>
-                  <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:32, letterSpacing:'-0.02em', color:'#111008', marginBottom:10 }}>
+                  <h1 className="profile-h1" style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:32, letterSpacing:'-0.02em', color:'#111008', marginBottom:10 }}>
                     {profile?.username}
                   </h1>
                   <div style={{ marginBottom:6 }}>
@@ -256,7 +256,7 @@ export default function PublicProfile() {
           </header>
 
           {/* Tabs */}
-          <div style={{ background:'#E8E4DC', border:'2px solid #111008', boxShadow:'4px 4px 0 #111008', display:'flex' }}>
+          <div className="tab-bar" style={{ background:'#E8E4DC', border:'2px solid #111008', boxShadow:'4px 4px 0 #111008', display:'flex', overflowX:'auto' }}>
             {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMMENTS'}].map((t,i,arr)=>(
               <TabBtn key={t.id} label={t.l} active={tab===t.id} onClick={()=>setTab(t.id)} last={i===arr.length-1} />
             ))}
@@ -313,8 +313,27 @@ export default function PublicProfile() {
         }
         .blinking-cursor { animation: blink 1s steps(2, start) infinite; }
         @keyframes blink { to { visibility: hidden; } }
+
         @media (max-width: 860px) {
-          .profile-grid { grid-template-columns: 1fr !important; }
+          .profile-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+          .profile-h1 {
+            font-size: 24px !important;
+          }
+          .avatar-area {
+            height: 160px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .profile-grid {
+            gap: 14px !important;
+          }
+          .profile-h1 {
+            font-size: 20px !important;
+          }
         }
       `}</style>
     </div>
