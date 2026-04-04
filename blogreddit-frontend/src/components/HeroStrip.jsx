@@ -7,17 +7,6 @@ export default function HeroStrip({ count }) {
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Spray halos */}
-      <div style={{ position:'absolute', inset:0, pointerEvents:'none' }}>
-        <div style={{ position:'absolute', top:-80, left:'5%', width:420, height:420,
-          background:'radial-gradient(circle, rgba(109,200,0,.10) 0%, transparent 65%)', borderRadius:'50%' }}/>
-        <div style={{ position:'absolute', top:-30, right:'10%', width:320, height:320,
-          background:'radial-gradient(circle, rgba(232,66,10,.08) 0%, transparent 65%)', borderRadius:'50%' }}/>
-        <div style={{ position:'absolute', bottom:-100, left:'45%', width:260, height:260,
-          background:'radial-gradient(circle, rgba(26,110,192,.09) 0%, transparent 65%)', borderRadius:'50%' }}/>
-        <div style={{ position:'absolute', top:'20%', left:'55%', width:180, height:180,
-          background:'radial-gradient(circle, rgba(240,184,0,.06) 0%, transparent 65%)', borderRadius:'50%' }}/>
-      </div>
 
       {/* Ghost number */}
       <div style={{
