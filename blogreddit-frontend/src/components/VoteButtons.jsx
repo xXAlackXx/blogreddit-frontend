@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTheme } from '../context/ThemeContext'
 
 export default function VoteButtons({ score, onVote, disabled }) {
-  const { t } = useTheme()
+  const { t, isDark } = useTheme()
   const [active, setActive] = useState(null)
 
   const vote = async (type) => {
@@ -14,8 +14,8 @@ export default function VoteButtons({ score, onVote, disabled }) {
 
   const btnBase = {
     width: 32, height: 32,
-    border: `2px solid ${t.border}`,
-    boxShadow: `2px 2px 0 ${t.shadow}`,
+    border: `${isDark ? '1px' : '2px'} solid ${t.border}`,
+    boxShadow: isDark ? 'none' : `2px 2px 0 ${t.shadow}`,
     background: t.panelBg,
     cursor: disabled ? 'default' : 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -41,7 +41,9 @@ export default function VoteButtons({ score, onVote, disabled }) {
       <span style={{
         fontFamily: "'Space Grotesk', sans-serif",
         fontSize: 16, fontWeight: 700,
-        color: score > 0 ? '#6DC800' : score < 0 ? '#E8420A' : t.text,
+        color: isDark
+          ? (score !== 0 ? '#00ff88' : t.textMuted)
+          : (score > 0 ? '#6DC800' : score < 0 ? '#E8420A' : t.text),
         minWidth: 24, textAlign: 'center',
         lineHeight: 1,
       }}>{score}</span>

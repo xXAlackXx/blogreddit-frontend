@@ -19,21 +19,21 @@ const light = {
 }
 
 const dark = {
-  pageBg:      '#0D0D09',
-  panelBg:     '#1A1A12',
-  panelAlt:    '#131310',
-  tabBg:       '#111108',
-  text:        '#E8E4DC',
-  textSub:     '#C0BAB0',
-  textMuted:   '#6A6460',
-  textFaint:   '#4A4840',
-  border:      '#6DC800',
-  borderMid:   '#2A2A1E',
-  borderLight: '#252518',
-  shadow:      '#6DC800',
-  inputBg:     '#131310',
-  skeletonBg:  '#1E1E14',
-  accent:      '#6DC800',
+  pageBg:      '#0f1115',
+  panelBg:     '#141a16',
+  panelAlt:    '#0f1410',
+  tabBg:       '#0d1210',
+  text:        '#e5e5e5',
+  textSub:     '#6b7280',
+  textMuted:   '#374151',
+  textFaint:   '#4b5563',
+  border:      '#1c2420',
+  borderMid:   '#1c2420',
+  borderLight: '#161c18',
+  shadow:      '#1c2420',
+  inputBg:     '#0f1410',
+  skeletonBg:  '#1a201c',
+  accent:      '#00ff88',
 }
 
 const ThemeContext = createContext()
