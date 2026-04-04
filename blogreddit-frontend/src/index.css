@@ -57,6 +57,8 @@
   --fade:   #6A6460;
 }
 
+[data-theme="dark"] body::after { display: none; }
+
 html { scroll-behavior: smooth; }
 
 body {
