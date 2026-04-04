@@ -5,6 +5,7 @@ import PostCard from '../components/PostCard'
 import HeroStrip from '../components/HeroStrip'
 import SortTabs from '../components/SortTabs'
 import Sidebar from '../components/Sidebar'
+import { useTheme } from '../context/ThemeContext'
 
 function SkeletonCard({ rot = 0 }) {
   return (
@@ -31,6 +32,7 @@ function SkeletonCard({ rot = 0 }) {
 }
 
 export default function Home() {
+  const { t } = useTheme()
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const inputRef = useRef(null)
@@ -69,13 +71,13 @@ export default function Home() {
               onChange={e => setSearch(e.target.value)}
               style={{
                 width:'100%', paddingLeft:36, paddingRight:14, paddingTop:10, paddingBottom:10,
-                background:'#FDFCF8', border:'2px solid #111008', borderRadius:2,
-                fontFamily:"'JetBrains Mono',monospace", fontSize:13, color:'#111008',
-                outline:'none', boxShadow:'3px 3px 0 #111008',
+                background: t.inputBg, border:`2px solid ${t.border}`, borderRadius:2,
+                fontFamily:"'JetBrains Mono',monospace", fontSize:13, color:t.text,
+                outline:'none', boxShadow:`3px 3px 0 ${t.shadow}`,
                 transition:'box-shadow .15s',
               }}
               onFocus={e=>{e.target.style.boxShadow='4px 4px 0 #6DC800';e.target.style.borderColor='#6DC800'}}
-              onBlur={e=>{e.target.style.boxShadow='3px 3px 0 #111008';e.target.style.borderColor='#111008'}}
+              onBlur={e=>{e.target.style.boxShadow=`3px 3px 0 ${t.shadow}`;e.target.style.borderColor=t.border}}
             />
           </div>
 
@@ -95,11 +97,11 @@ export default function Home() {
               [0,1,2,3].map(i => <SkeletonCard key={i} rot={rots[i%rots.length]}/>)
             ) : data?.results?.length === 0 ? (
               <div style={{
-                background:'#FDFCF8', border:'2px solid #111008', boxShadow:'5px 5px 0 #111008',
+                background: t.panelBg, border:`2px solid ${t.border}`, boxShadow:`5px 5px 0 ${t.shadow}`,
                 padding:48, textAlign:'center',
               }}>
-                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:48, fontWeight:800, color:'transparent', WebkitTextStroke:'2px #C8C2B6', marginBottom:12 }}>VOID</div>
-                <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:'#9A9288', textTransform:'uppercase', letterSpacing:'0.1em' }}>
+                <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:48, fontWeight:800, color:'transparent', WebkitTextStroke:`2px ${t.borderMid}`, marginBottom:12 }}>VOID</div>
+                <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:t.textMuted, textTransform:'uppercase', letterSpacing:'0.1em' }}>
                   no posts yet — be first
                 </p>
               </div>

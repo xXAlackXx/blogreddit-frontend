@@ -4,6 +4,7 @@ import { useState } from 'react'
 import api from '../api/axios'
 import { useAuth } from '../context/AuthContext'
 import VoteButtons from '../components/VoteButtons'
+import { useTheme } from '../context/ThemeContext'
 
 function timeAgo(date) {
   const d = Date.now() - new Date(date)
@@ -18,6 +19,7 @@ function timeAgo(date) {
 export default function PostDetail() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { t } = useTheme()
   const queryClient = useQueryClient()
   const location = useLocation()
   const from = location.state?.from  // 'profile' | 'myprofile' | undefined
@@ -52,7 +54,7 @@ export default function PostDetail() {
 
   if (isLoading) return (
     <div style={{ maxWidth:760, margin:'24px auto', padding:'0 16px' }}>
-      <div style={{ background:'#FDFCF8', border:'2px solid #C8C2B6', boxShadow:'5px 5px 0 #C8C2B6', padding:24 }}>
+      <div style={{ background:t.panelBg, border:`2px solid ${t.borderMid}`, boxShadow:`5px 5px 0 ${t.borderMid}`, padding:24 }}>
         <div className="skeleton" style={{ height:28,width:'65%',marginBottom:12 }}/>
         <div className="skeleton" style={{ height:14,width:'30%',marginBottom:20 }}/>
         <div className="skeleton" style={{ height:120,width:'100%' }}/>
@@ -73,34 +75,34 @@ export default function PostDetail() {
       }}>{backLabel}</Link>
 
       {/* Post */}
-      <div style={{ background:'#FDFCF8', border:'2px solid #111008', boxShadow:'5px 5px 0 #111008', overflow:'hidden', marginBottom:16 }}>
+      <div style={{ background:t.panelBg, border:`2px solid ${t.border}`, boxShadow:`5px 5px 0 ${t.shadow}`, overflow:'hidden', marginBottom:16 }}>
         <div style={{ height:4, background:'#6DC800' }}/>
         <div style={{ display:'flex' }}>
           {/* Vote */}
-          <div style={{ width:56, background:'#F2EFE8', borderRight:'2px solid #E8E4DC', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-start', padding:'16px 8px', flexShrink:0 }}>
+          <div style={{ width:56, background:t.panelAlt, borderRight:`2px solid ${t.borderLight}`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-start', padding:'16px 8px', flexShrink:0 }}>
             <VoteButtons score={score} onVote={handleVote} disabled={!user}/>
           </div>
           {/* Content */}
           <div style={{ padding:'18px 24px', flex:1 }}>
             <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
               <Link to={`/u/${post.author}`} style={{ textDecoration:'none', flexShrink:0 }}>
-                <div style={{ width:28, height:28, background:'linear-gradient(135deg,#E8420A,#F0B800)', border:'2px solid #111008', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+                <div style={{ width:28, height:28, background:'linear-gradient(135deg,#E8420A,#F0B800)', border:`2px solid ${t.border}`, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
                   {post.author_avatar
                     ? <img src={post.author_avatar} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                     : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'#111008' }}>{post.author?.[0]?.toUpperCase()}</span>
                   }
                 </div>
               </Link>
-              <Link to={`/u/${post.author}`} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700, color:'#3A3630', textDecoration:'none' }}
+              <Link to={`/u/${post.author}`} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700, color:t.textSub, textDecoration:'none' }}
                 onMouseEnter={e=>e.currentTarget.style.color='#6DC800'}
-                onMouseLeave={e=>e.currentTarget.style.color='#3A3630'}
+                onMouseLeave={e=>e.currentTarget.style.color=t.textSub}
               >{post.author}</Link>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#9A9288' }}>{timeAgo(post.created_at)}</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:t.textMuted }}>{timeAgo(post.created_at)}</span>
             </div>
-            <h1 style={{ fontFamily:"'Lora',Georgia,serif", fontStyle:'italic', fontWeight:700, fontSize:'clamp(20px,3vw,26px)', color:'#111008', lineHeight:1.3, marginBottom:16 }}>
+            <h1 style={{ fontFamily:"'Lora',Georgia,serif", fontStyle:'italic', fontWeight:700, fontSize:'clamp(20px,3vw,26px)', color:t.text, lineHeight:1.3, marginBottom:16 }}>
               {post.title}
             </h1>
-            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#3A3630', lineHeight:1.75, whiteSpace:'pre-wrap' }}>
+            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:t.textSub, lineHeight:1.75, whiteSpace:'pre-wrap' }}>
               {post.content}
             </p>
           </div>
@@ -108,9 +110,9 @@ export default function PostDetail() {
       </div>
 
       {/* Comments */}
-      <div style={{ background:'#FDFCF8', border:'2px solid #111008', boxShadow:'5px 5px 0 #111008', padding:24 }}>
-        <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, textTransform:'uppercase', letterSpacing:'0.06em', color:'#111008', marginBottom:20, display:'flex', alignItems:'center', gap:10 }}>
-          <div style={{ width:8, height:8, background:'#6DC800', border:'2px solid #111008' }}/>
+      <div style={{ background:t.panelBg, border:`2px solid ${t.border}`, boxShadow:`5px 5px 0 ${t.shadow}`, padding:24 }}>
+        <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, textTransform:'uppercase', letterSpacing:'0.06em', color:t.text, marginBottom:20, display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ width:8, height:8, background:'#6DC800', border:`2px solid ${t.border}` }}/>
           {comments?.count ?? 0} COMMENTS
         </h2>
 
@@ -121,13 +123,13 @@ export default function PostDetail() {
               onChange={e => setComment(e.target.value)}
               style={{
                 width:'100%', padding:'12px 14px',
-                background:'#F2EFE8', border:'2px solid #111008',
-                fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#111008',
+                background:t.panelAlt, border:`2px solid ${t.border}`,
+                fontFamily:"'DM Sans',sans-serif", fontSize:14, color:t.text,
                 outline:'none', resize:'vertical', lineHeight:1.6,
                 transition:'box-shadow .15s, border-color .15s',
               }}
               onFocus={e=>{e.target.style.borderColor='#6DC800';e.target.style.boxShadow='3px 3px 0 #6DC800'}}
-              onBlur={e=>{e.target.style.borderColor='#111008';e.target.style.boxShadow='none'}}
+              onBlur={e=>{e.target.style.borderColor=t.border;e.target.style.boxShadow='none'}}
             />
             <div style={{ display:'flex', justifyContent:'flex-end', marginTop:8 }}>
               <button
@@ -163,12 +165,12 @@ export default function PostDetail() {
             </div>
           ) : comments?.results?.map((c, i) => (
             <div key={c.id} className="slam" style={{
-              borderTop: i===0 ? '2px solid #E8E4DC' : '1px solid #E8E4DC',
+              borderTop: i===0 ? `2px solid ${t.borderLight}` : `1px solid ${t.borderLight}`,
               padding:'16px 0',
               display:'flex', gap:14,
             }}>
               <Link to={`/u/${c.author}`} style={{ textDecoration:'none', flexShrink:0 }}>
-                <div style={{ width:32, height:32, background:`linear-gradient(135deg, ${['#6DC800','#E8420A','#F0B800','#1A6EC0','#0A9E88'][i%5]}, #111008)`, border:'2px solid #111008', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+                <div style={{ width:32, height:32, background:`linear-gradient(135deg, ${['#6DC800','#E8420A','#F0B800','#1A6EC0','#0A9E88'][i%5]}, #111008)`, border:`2px solid ${t.border}`, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
                   {c.author_avatar
                     ? <img src={c.author_avatar} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                     : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:12, color:'#FDFCF8' }}>{c.author?.[0]?.toUpperCase()}</span>
@@ -177,15 +179,15 @@ export default function PostDetail() {
               </Link>
               <div style={{ flex:1 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
-                  <Link to={`/u/${c.author}`} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700, color:'#111008', textDecoration:'none' }}
+                  <Link to={`/u/${c.author}`} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, fontWeight:700, color:t.text, textDecoration:'none' }}
                     onMouseEnter={e=>e.currentTarget.style.color='#6DC800'}
-                    onMouseLeave={e=>e.currentTarget.style.color='#111008'}
+                    onMouseLeave={e=>e.currentTarget.style.color=t.text}
                   >{c.author}</Link>
-                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#9A9288' }}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:t.textMuted }}>
                     {timeAgo(c.created_at)}
                   </span>
                 </div>
-                <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#3A3630', lineHeight:1.65 }}>
+                <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:t.textSub, lineHeight:1.65 }}>
                   {c.content}
                 </p>
               </div>

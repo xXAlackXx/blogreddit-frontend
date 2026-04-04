@@ -1,8 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
+  const { isDark, toggle } = useTheme()
   const navigate = useNavigate()
   const handleLogout = () => { logout(); navigate('/login') }
 
@@ -46,6 +48,28 @@ export default function Navbar() {
             >{item.label}</Link>
           ))}
         </div>
+
+        {/* Theme toggle */}
+        <button onClick={toggle} title={isDark ? 'Switch to light' : 'Switch to dark'} style={{
+          background:'none', border:'1px solid #3A3630', color:'#9A9288',
+          width:30, height:30, borderRadius:2, cursor:'pointer',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          flexShrink:0, transition:'all .15s',
+        }}
+        onMouseEnter={e=>{e.currentTarget.style.borderColor='#6DC800';e.currentTarget.style.color='#6DC800'}}
+        onMouseLeave={e=>{e.currentTarget.style.borderColor='#3A3630';e.currentTarget.style.color='#9A9288'}}
+        >
+          {isDark ? (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="5"/>
+              <path stroke="currentColor" strokeWidth="2" strokeLinecap="round" d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+          ) : (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          )}
+        </button>
 
         {/* Actions */}
         <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>

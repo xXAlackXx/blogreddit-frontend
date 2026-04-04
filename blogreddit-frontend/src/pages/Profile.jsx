@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../context/AuthContext'
 import AvatarCropModal from '../components/AvatarCropModal'
+import { useTheme } from '../context/ThemeContext'
 
 import api from '../api/axios'
 
@@ -45,8 +46,9 @@ function WindowControls() {
 }
 
 function PanelBox({ title, children }) {
+  const { t } = useTheme()
   return (
-    <div style={{ border:'2px solid #111008', boxShadow:'6px 6px 0 #6DC800', background:'#FDFCF8' }}>
+    <div style={{ border:`2px solid ${t.border}`, boxShadow:'6px 6px 0 #6DC800', background:t.panelBg }}>
       <div style={{ height:24, background:'#111008', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 10px' }}>
         <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800', textTransform:'uppercase' }}>{title}</span>
         <WindowControls />
@@ -57,26 +59,28 @@ function PanelBox({ title, children }) {
 }
 
 function StatLine({ label, value, acid }) {
+  const { t } = useTheme()
   return (
     <div style={{ display:'flex', fontFamily:"'JetBrains Mono',monospace", fontSize:12, lineHeight:1.8 }}>
-      <span style={{ color:'#9A9288', textTransform:'uppercase', flexShrink:0 }}>{label}</span>
-      <span style={{ color:'#C8C2B6', flex:1, overflow:'hidden', padding:'0 4px', whiteSpace:'nowrap' }}>{'................'.repeat(4)}</span>
-      <span style={{ color: acid ? '#6DC800' : '#111008', fontWeight:700, textTransform:'uppercase', flexShrink:0 }}>{value}</span>
+      <span style={{ color:t.textMuted, textTransform:'uppercase', flexShrink:0 }}>{label}</span>
+      <span style={{ color:t.borderMid, flex:1, overflow:'hidden', padding:'0 4px', whiteSpace:'nowrap' }}>{'................'.repeat(4)}</span>
+      <span style={{ color: acid ? '#6DC800' : t.text, fontWeight:700, textTransform:'uppercase', flexShrink:0 }}>{value}</span>
     </div>
   )
 }
 
 function TabBtn({ label, active, onClick, last }) {
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
   return (
     <button onClick={onClick}
       onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{
         fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight: active ? 700 : 400,
-        color: active ? '#6DC800' : hov ? '#3A3630' : '#9A9288',
-        background: active ? '#111008' : hov ? '#FDFCF8' : 'transparent',
+        color: active ? '#6DC800' : hov ? t.textSub : t.textMuted,
+        background: active ? '#111008' : hov ? t.panelBg : 'transparent',
         padding:'14px 24px', border:'none', cursor:'pointer',
-        borderRight: last ? 'none' : '2px solid #111008',
+        borderRight: last ? 'none' : `2px solid ${t.border}`,
         borderBottom: active ? '3px solid #6DC800' : '3px solid transparent',
         transition:'all .15s',
       }}
@@ -85,29 +89,30 @@ function TabBtn({ label, active, onClick, last }) {
 }
 
 function PostCard({ post, index }) {
+  const { t } = useTheme()
   const score = (post.upvotes || 0) - (post.downvotes || 0)
   const [hov, setHov] = useState(false)
   return (
     <Link to={`/posts/${post.id}`} state={{ from: 'myprofile' }} style={{ textDecoration:'none', color:'inherit', display:'block' }}>
       <article
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-        style={{ border:'2px solid #111008', boxShadow: hov ? '6px 6px 0 #111008' : '4px 4px 0 #111008', background:'#FDFCF8', display:'grid', gridTemplateColumns:'4px 1fr', transform: hov ? 'translate(-2px,-2px)' : 'none', transition:'all .1s' }}
+        style={{ border:`2px solid ${t.border}`, boxShadow: hov ? `6px 6px 0 ${t.shadow}` : `4px 4px 0 ${t.shadow}`, background:t.panelBg, display:'grid', gridTemplateColumns:'4px 1fr', transform: hov ? 'translate(-2px,-2px)' : 'none', transition:'all .1s' }}
       >
         <div style={{ background: STRIP_COLORS[index % STRIP_COLORS.length] }} />
         <div style={{ padding:'16px 20px' }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#9A9288', textTransform:'uppercase' }}>// FEED</span>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#9A9288' }}>{relTime(post.created_at)}</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:t.textMuted, textTransform:'uppercase' }}>// FEED</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:t.textMuted }}>{relTime(post.created_at)}</span>
           </div>
-          <h2 style={{ fontFamily:"'Lora',serif", fontStyle:'italic', fontWeight:700, fontSize:17, lineHeight:1.3, color:'#111008', marginBottom:8 }}>
+          <h2 style={{ fontFamily:"'Lora',serif", fontStyle:'italic', fontWeight:700, fontSize:17, lineHeight:1.3, color:t.text, marginBottom:8 }}>
             {post.title}
           </h2>
           {post.content && (
-            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#9A9288', lineHeight:1.5, marginBottom:12, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:t.textMuted, lineHeight:1.5, marginBottom:12, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
               {post.content}
             </p>
           )}
-          <div style={{ display:'flex', alignItems:'center', gap:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#3A3630' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textSub }}>
             <span style={{ color: score >= 0 ? '#6DC800' : '#E8420A' }}>▲ {score > 0 ? '+' : ''}{score}</span>
             <span>⏱ {readTime(post.content)} min read</span>
           </div>
@@ -118,22 +123,23 @@ function PostCard({ post, index }) {
 }
 
 function CommentCard({ comment, index }) {
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
   return (
     <Link to={`/posts/${comment.post_id}`} state={{ from: 'myprofile' }} style={{ textDecoration:'none', color:'inherit', display:'block' }}>
       <article
         onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-        style={{ border:'2px solid #111008', boxShadow: hov ? '6px 6px 0 #111008' : '4px 4px 0 #111008', background:'#FDFCF8', display:'grid', gridTemplateColumns:'4px 1fr', transform: hov ? 'translate(-2px,-2px)' : 'none', transition:'all .1s' }}
+        style={{ border:`2px solid ${t.border}`, boxShadow: hov ? `6px 6px 0 ${t.shadow}` : `4px 4px 0 ${t.shadow}`, background:t.panelBg, display:'grid', gridTemplateColumns:'4px 1fr', transform: hov ? 'translate(-2px,-2px)' : 'none', transition:'all .1s' }}
       >
         <div style={{ background: STRIP_COLORS[(index + 2) % STRIP_COLORS.length] }} />
         <div style={{ padding:'14px 18px' }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#9A9288', textTransform:'uppercase', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'70%' }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:t.textMuted, textTransform:'uppercase', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'70%' }}>
               // EN: {comment.post_title}
             </span>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#9A9288', flexShrink:0 }}>{relTime(comment.created_at)}</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:t.textMuted, flexShrink:0 }}>{relTime(comment.created_at)}</span>
           </div>
-          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#3A3630', lineHeight:1.5, display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:t.textSub, lineHeight:1.5, display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
             {comment.content}
           </p>
         </div>
@@ -143,8 +149,9 @@ function CommentCard({ comment, index }) {
 }
 
 function TerminalEmpty({ lines }) {
+  const { t } = useTheme()
   return (
-    <div style={{ padding:20, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:'#6DC800', lineHeight:1.8, borderTop:'2px dashed #C8C2B6', marginTop:10 }}>
+    <div style={{ padding:20, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:'#6DC800', lineHeight:1.8, borderTop:`2px dashed ${t.borderMid}`, marginTop:10 }}>
       {lines.map((l, i) => <p key={i}>&gt; {l}{i === lines.length-1 && <span className="blinking-cursor"> █</span>}</p>)}
     </div>
   )
@@ -153,6 +160,7 @@ function TerminalEmpty({ lines }) {
 /* ── Main ── */
 export default function Profile() {
   const { user, refreshUser } = useAuth()
+  const { t } = useTheme()
   const navigate  = useNavigate()
   const qc        = useQueryClient()
   const fileRef   = useRef(null)
@@ -263,7 +271,7 @@ export default function Profile() {
   if (!user) return null
 
   return (
-    <div style={{ background:'#ECEAE2', minHeight:'100vh', padding:'20px 12px 60px' }}>
+    <div style={{ background:t.pageBg, minHeight:'100vh', padding:'20px 12px 60px' }}>
       <div className="profile-grid" style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'320px 1fr', gap:40, alignItems:'start' }}>
 
         {/* ══ LEFT COLUMN ══ */}
@@ -280,7 +288,7 @@ export default function Profile() {
               }
             </div>
             <div style={{ padding:12, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:'#111008' }}>
+              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:t.text }}>
                 {profileLoading ? '...' : profile?.username}
               </span>
               <div style={{ display:'flex', alignItems:'center', gap:6, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800' }}>
@@ -300,7 +308,7 @@ export default function Profile() {
               <StatLine label="LEVEL"       value={rank.nivel} />
               <div style={{ marginTop:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#9A9288' }}>
                 <span>LEVEL {rank.label}</span>
-                <div style={{ height:6, background:'#C8C2B6', marginTop:4 }}>
+                <div style={{ height:6, background:t.borderMid, marginTop:4 }}>
                   <div style={{ height:'100%', background:'#6DC800', width:`${Math.min(rank.progress,100)}%`, transition:'width 1s ease' }} />
                 </div>
               </div>
@@ -328,18 +336,18 @@ export default function Profile() {
             {profileLoading
               ? <div style={{ height:40, background:'#E8E4DC', width:240, marginBottom:10 }} />
               : <>
-                  <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:32, letterSpacing:'-0.02em', color:'#111008', marginBottom:10 }}>
+                  <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:32, letterSpacing:'-0.02em', color:t.text, marginBottom:10 }}>
                     {profile?.username}
                   </h1>
                   <div style={{ marginBottom:6 }}>
-                    <span style={{ fontFamily:"'Lora',serif", fontStyle:'italic', fontSize:14, color:'#9A9288' }}>
+                    <span style={{ fontFamily:"'Lora',serif", fontStyle:'italic', fontSize:14, color:t.textMuted }}>
                       {profile?.bio || 'No bio yet...'}
                     </span>
-                    <button onClick={()=>setTab('settings')} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#111008', background:'none', border:'none', cursor:'pointer', marginLeft:8, textDecoration:'underline', padding:0 }}>
+                    <button onClick={()=>setTab('settings')} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.text, background:'none', border:'none', cursor:'pointer', marginLeft:8, textDecoration:'underline', padding:0 }}>
                       [EDIT PROFILE]
                     </button>
                   </div>
-                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#9A9288' }}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textMuted }}>
                     Member since {fmtDate(profile?.created_at)}
                   </span>
                 </>
@@ -347,7 +355,7 @@ export default function Profile() {
           </header>
 
           {/* Tabs */}
-          <div className="tab-bar" style={{ background:'#E8E4DC', border:'2px solid #111008', boxShadow:'4px 4px 0 #111008', display:'flex' }}>
+          <div className="tab-bar" style={{ background:t.tabBg, border:`2px solid ${t.border}`, boxShadow:`4px 4px 0 ${t.shadow}`, display:'flex' }}>
             {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMMENTS'},{id:'settings',l:'SETTINGS'}].map((t,i,arr)=>(
               <TabBtn key={t.id} label={t.l} active={tab===t.id} onClick={()=>setTab(t.id)} last={i===arr.length-1} />
             ))}
@@ -379,7 +387,7 @@ export default function Profile() {
 
           {/* ── Tab: SETTINGS ── */}
           {tab === 'settings' && (
-            <div style={{ border:'2px solid #111008', boxShadow:'6px 6px 0 #111008', background:'#FDFCF8' }}>
+            <div style={{ border:`2px solid ${t.border}`, boxShadow:`6px 6px 0 ${t.shadow}`, background:t.panelBg }}>
               <div style={{ height:24, background:'#111008', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 10px' }}>
                 <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800', textTransform:'uppercase' }}>// EDIT PROFILE</span>
                 <WindowControls />
@@ -398,7 +406,7 @@ export default function Profile() {
                       }
                     </div>
                     <div>
-                      <button onClick={()=>fileRef.current?.click()} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', background:'transparent', color:'#111008', border:'2px solid #111008', boxShadow:'3px 3px 0 #111008', padding:'6px 14px', cursor:'pointer', marginBottom:6, display:'block' }}>
+                      <button onClick={()=>fileRef.current?.click()} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', background:'transparent', color:t.text, border:`2px solid ${t.border}`, boxShadow:`3px 3px 0 ${t.shadow}`, padding:'6px 14px', cursor:'pointer', marginBottom:6, display:'block' }}>
                         CHANGE AVATAR
                       </button>
                       <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color: avatarError ? '#E8420A' : '#9A9288' }}>
@@ -413,8 +421,8 @@ export default function Profile() {
                 <div style={{ marginBottom:18 }}>
                   <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'#6A6258', display:'block', marginBottom:8 }}>// BIO</label>
                   <textarea value={bio} onChange={e=>setBio(e.target.value)} rows={4} placeholder="Tell us something about you..."
-                    style={{ width:'100%', border:'2px solid #C8C2B6', background:'#F2EFE8', outline:'none', padding:'10px 14px', fontFamily:"'DM Sans',sans-serif", fontSize:14, color:'#111008', lineHeight:1.6, resize:'vertical', transition:'border-color .15s', boxSizing:'border-box' }}
-                    onFocus={e=>e.target.style.borderColor='#111008'} onBlur={e=>e.target.style.borderColor='#C8C2B6'} />
+                    style={{ width:'100%', border:`2px solid ${t.borderMid}`, background:t.panelAlt, outline:'none', padding:'10px 14px', fontFamily:"'DM Sans',sans-serif", fontSize:14, color:t.text, lineHeight:1.6, resize:'vertical', transition:'border-color .15s', boxSizing:'border-box' }}
+                    onFocus={e=>e.target.style.borderColor=t.accent} onBlur={e=>e.target.style.borderColor=t.borderMid} />
                 </div>
 
                 {/* Save error */}

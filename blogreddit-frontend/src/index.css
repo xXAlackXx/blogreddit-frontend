@@ -45,6 +45,18 @@
   --teal: #0A9E88;
 }
 
+[data-theme="dark"] {
+  --wall:   #0D0D09;
+  --paper:  #1A1A12;
+  --board:  #1E1E14;
+  --crack:  #2A2A1E;
+  --stain:  #6A6460;
+  --ink:    #E8E4DC;
+  --smudge: #C0BAB0;
+  --dust:   #6A6460;
+  --fade:   #6A6460;
+}
+
 html { scroll-behavior: smooth; }
 
 body {

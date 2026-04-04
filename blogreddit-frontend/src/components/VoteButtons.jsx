@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
 
 export default function VoteButtons({ score, onVote, disabled }) {
+  const { t } = useTheme()
   const [active, setActive] = useState(null)
 
   const vote = async (type) => {
@@ -12,9 +14,9 @@ export default function VoteButtons({ score, onVote, disabled }) {
 
   const btnBase = {
     width: 32, height: 32,
-    border: '2px solid #111008',
-    boxShadow: '2px 2px 0 #111008',
-    background: '#FDFCF8',
+    border: `2px solid ${t.border}`,
+    boxShadow: `2px 2px 0 ${t.shadow}`,
+    background: t.panelBg,
     cursor: disabled ? 'default' : 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontSize: 14,
@@ -29,17 +31,17 @@ export default function VoteButtons({ score, onVote, disabled }) {
         onClick={() => vote('upvote')}
         style={{
           ...btnBase,
-          background: active === 'upvote' ? '#6DC800' : '#FDFCF8',
-          color: active === 'upvote' ? '#111008' : '#9A9288',
+          background: active === 'upvote' ? '#6DC800' : t.panelBg,
+          color: active === 'upvote' ? '#111008' : t.textMuted,
           transform: active === 'upvote' ? 'translate(-1px,-1px)' : 'none',
-          boxShadow: active === 'upvote' ? '3px 3px 0 #111008' : '2px 2px 0 #111008',
+          boxShadow: active === 'upvote' ? `3px 3px 0 ${t.shadow}` : `2px 2px 0 ${t.shadow}`,
         }}
       >▲</button>
 
       <span style={{
         fontFamily: "'Space Grotesk', sans-serif",
         fontSize: 16, fontWeight: 700,
-        color: score > 0 ? '#6DC800' : score < 0 ? '#E8420A' : '#111008',
+        color: score > 0 ? '#6DC800' : score < 0 ? '#E8420A' : t.text,
         minWidth: 24, textAlign: 'center',
         lineHeight: 1,
       }}>{score}</span>
@@ -48,10 +50,10 @@ export default function VoteButtons({ score, onVote, disabled }) {
         onClick={() => vote('downvote')}
         style={{
           ...btnBase,
-          background: active === 'downvote' ? '#E8420A' : '#FDFCF8',
-          color: active === 'downvote' ? '#fff' : '#9A9288',
+          background: active === 'downvote' ? '#E8420A' : t.panelBg,
+          color: active === 'downvote' ? '#fff' : t.textMuted,
           transform: active === 'downvote' ? 'translate(-1px,-1px)' : 'none',
-          boxShadow: active === 'downvote' ? '3px 3px 0 #111008' : '2px 2px 0 #111008',
+          boxShadow: active === 'downvote' ? `3px 3px 0 ${t.shadow}` : `2px 2px 0 ${t.shadow}`,
         }}
       >▼</button>
     </div>
