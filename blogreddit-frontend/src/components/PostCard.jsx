@@ -20,12 +20,13 @@ const ROTATIONS = [0.5, -0.7, 0.3, -0.5, 0.8, -0.3]
 const MARGINS   = [0, 12, -8, 6, -4, 10]
 
 const TAG_COLORS = {
-  tech:   { bg:'#0d1a2e', border:'#185fa5', color:'#85b7eb' },
-  art:    { bg:'#2e0d1a', border:'#993556', color:'#ed93b1' },
-  music:  { bg:'#1a0d2e', border:'#534ab7', color:'#afa9ec' },
-  life:   { bg:'#1a2e0d', border:'#3b6d11', color:'#97c459' },
-  random: { bg:'#2e1a0d', border:'#854f0b', color:'#ef9f27' },
-  event:  { bg:'#2e0d0d', border:'#a32d2d', color:'#f09595' },
+  tech:    { bg:'#1a3a14', border:'#2d5a24', color:'#9eeb9e' },
+  art:     { bg:'#3a1414', border:'#5a2424', color:'#ff8a8a' },
+  music:   { bg:'#3a2614', border:'#5a3a1f', color:'#f5b478' },
+  life:    { bg:'#142a3a', border:'#1f3d5a', color:'#7ab8e8' },
+  random:  { bg:'#143a32', border:'#1f5a4a', color:'#5fd8c0' },
+  news:    { bg:'transparent', border:'#2a312a', color:'#8a9488' },
+  general: { bg:'#1a3a14', border:'#2d5a24', color:'#9eeb9e' },
 }
 
 export default function PostCard({ post, onVote, index = 0, featured = false }) {

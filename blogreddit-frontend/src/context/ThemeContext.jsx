@@ -19,21 +19,21 @@ const light = {
 }
 
 const dark = {
-  pageBg:      '#0f1115',
-  panelBg:     '#141a16',
-  panelAlt:    '#0f1410',
-  tabBg:       '#0d1210',
-  text:        '#e5e5e5',
-  textSub:     '#6b7280',
-  textMuted:   '#374151',
-  textFaint:   '#4b5563',
-  border:      '#1c2420',
-  borderMid:   '#1c2420',
-  borderLight: '#161c18',
-  shadow:      '#1c2420',
-  inputBg:     '#0f1410',
+  pageBg:      '#0a0c0a',   // --onyx-bg-base
+  panelBg:     '#0c100c',   // --onyx-bg-elevated
+  panelAlt:    '#080a08',   // --onyx-bg-deep
+  tabBg:       '#080a08',   // --onyx-bg-deep
+  text:        '#e8ede6',   // --onyx-text-primary
+  textSub:     '#c8d1c4',   // --onyx-text-body
+  textMuted:   '#8a9488',   // --onyx-text-muted
+  textFaint:   '#5a6358',   // --onyx-text-faint
+  border:      '#1f2a1d',   // --onyx-border-subtle
+  borderMid:   '#2a312a',   // --onyx-border-muted
+  borderLight: '#2d3a2d',   // --onyx-border-accent
+  shadow:      '#1f2a1d',   // --onyx-border-subtle
+  inputBg:     '#0a0c0a',   // --onyx-bg-base
   skeletonBg:  '#1a201c',
-  accent:      '#00ff88',
+  accent:      '#4ade4a',   // --onyx-green
 }
 
 const ThemeContext = createContext()

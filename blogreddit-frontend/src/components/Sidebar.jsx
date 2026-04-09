@@ -83,7 +83,7 @@ function QuoteBlock() {
 }
 
 function RulesBlock() {
-  const { t } = useTheme()
+  const { t, isDark } = useTheme()
   const rules = [
     'Be brutally honest.',
     'No spam or low-effort posts.',
@@ -97,7 +97,7 @@ function RulesBlock() {
       <div style={{ padding:'12px 14px', display:'flex', flexDirection:'column', gap:10 }}>
         {rules.map((r, i) => (
           <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, color:'#E8420A', flexShrink:0, paddingTop:1 }}>{String(i+1).padStart(2,'0')}.</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, color: isDark ? '#e8703a' : '#E8420A', flexShrink:0, paddingTop:1 }}>{String(i+1).padStart(2,'0')}.</span>
             <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:12, color:t.textSub, lineHeight:1.5 }}>{r}</span>
           </div>
         ))}
@@ -107,7 +107,7 @@ function RulesBlock() {
 }
 
 function TagCloud() {
-  const { t } = useTheme()
+  const { t, isDark } = useTheme()
   const [searchParams] = useSearchParams()
   const activeHashtag = searchParams.get('hashtag') || ''
 
@@ -115,7 +115,9 @@ function TagCloud() {
     {label:'#TECH',slug:'tech',v:'acid'},{label:'#ART',slug:'art',v:'rust'},{label:'#MUSIC',slug:'music',v:'amber'},
     {label:'#LIFE',slug:'life',v:'steel'},{label:'#RANDOM',slug:'random',v:'teal'},{label:'#NEWS',slug:'news',v:'plain'},
   ]
-  const COLORS = { acid:{bg:'#6DC800',c:'#111008'}, rust:{bg:'#E8420A',c:'#fff'}, amber:{bg:'#F0B800',c:'#111008'}, steel:{bg:'#1A6EC0',c:'#fff'}, teal:{bg:'#0A9E88',c:'#fff'}, plain:{bg:t.tabBg,c:t.textFaint} }
+  const COLORS = isDark
+    ? { acid:{bg:'#1a3a14',c:'#9eeb9e',bd:'#2d5a24'}, rust:{bg:'#3a1414',c:'#ff8a8a',bd:'#5a2424'}, amber:{bg:'#3a2614',c:'#f5b478',bd:'#5a3a1f'}, steel:{bg:'#142a3a',c:'#7ab8e8',bd:'#1f3d5a'}, teal:{bg:'#143a32',c:'#5fd8c0',bd:'#1f5a4a'}, plain:{bg:'transparent',c:'#8a9488',bd:'#2a312a'} }
+    : { acid:{bg:'#6DC800',c:'#111008',bd:'#111008'}, rust:{bg:'#E8420A',c:'#fff',bd:'#111008'}, amber:{bg:'#F0B800',c:'#111008',bd:'#111008'}, steel:{bg:'#1A6EC0',c:'#fff',bd:'#111008'}, teal:{bg:'#0A9E88',c:'#fff',bd:'#111008'}, plain:{bg:t.tabBg,c:t.textFaint,bd:t.border} }
 
   return (
     <div style={{ background:t.panelBg, border:`2px solid ${t.border}`, boxShadow:`4px 4px 0 ${t.shadow}`, borderRadius:2, overflow:'hidden', transform:'rotate(0.3deg)', marginBottom:20 }}>
@@ -130,7 +132,7 @@ function TagCloud() {
               to={isActive ? '/' : `/?hashtag=${tag.slug}`}
               style={{
                 background: c.bg, color: c.c,
-                border: isActive ? `2px solid #fff` : `2px solid ${t.border}`,
+                border: isActive ? `2px solid #fff` : `2px solid ${c.bd}`,
                 boxShadow: isActive ? `0 0 0 2px ${c.bg}, 3px 3px 0 ${t.shadow}` : `2px 2px 0 ${t.shadow}`,
                 padding:'3px 10px', fontFamily:"'JetBrains Mono',monospace",
                 fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.05em',

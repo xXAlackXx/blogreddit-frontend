@@ -45,19 +45,91 @@
   --teal: #0A9E88;
 }
 
+/* ============================================================
+   ONYX · DARK MODE
+   ============================================================ */
+:root[data-theme="dark"],
 [data-theme="dark"] {
-  --wall:   #0D0D09;
-  --paper:  #1A1A12;
-  --board:  #1E1E14;
-  --crack:  #2A2A1E;
-  --stain:  #6A6460;
-  --ink:    #E8E4DC;
-  --smudge: #C0BAB0;
-  --dust:   #6A6460;
-  --fade:   #6A6460;
+  /* Backgrounds */
+  --onyx-bg-base:        #0a0c0a;
+  --onyx-bg-elevated:    #0c100c;
+  --onyx-bg-deep:        #080a08;
+
+  /* Borders */
+  --onyx-border-subtle:  #1f2a1d;
+  --onyx-border-muted:   #2a312a;
+  --onyx-border-accent:  #2d3a2d;
+
+  /* Text */
+  --onyx-text-primary:   #e8ede6;
+  --onyx-text-body:      #c8d1c4;
+  --onyx-text-secondary: #a8b8a4;
+  --onyx-text-muted:     #8a9488;
+  --onyx-text-faint:     #5a6358;
+  --onyx-text-decorative:#1a2418;
+
+  /* Green */
+  --onyx-green:          #4ade4a;
+  --onyx-green-bright:   #9eeb9e;
+  --onyx-green-deep:     #1a3a14;
+  --onyx-green-border:   #2d5a24;
+  --onyx-green-dark:     #1a2418;
+
+  /* Orange */
+  --onyx-orange:         #e8703a;
+  --onyx-orange-bright:  #f5b478;
+  --onyx-orange-deep:    #3a2614;
+  --onyx-orange-border:  #5a3a1f;
+  --onyx-orange-dark:    #1a0c08;
+
+  /* Red */
+  --onyx-red-bright:     #ff8a8a;
+  --onyx-red-deep:       #3a1414;
+  --onyx-red-border:     #5a2424;
+
+  /* Blue */
+  --onyx-blue-bright:    #7ab8e8;
+  --onyx-blue-deep:      #142a3a;
+  --onyx-blue-border:    #1f3d5a;
+
+  /* Cyan */
+  --onyx-cyan-bright:    #5fd8c0;
+  --onyx-cyan-deep:      #143a32;
+  --onyx-cyan-border:    #1f5a4a;
+
+  /* legacy vars */
+  --wall:   #0a0c0a;
+  --paper:  #0c100c;
+  --board:  #080a08;
+  --crack:  #2a312a;
+  --stain:  #8a9488;
+  --ink:    #e8ede6;
+  --smudge: #c8d1c4;
+  --dust:   #5a6358;
+  --fade:   #5a6358;
+}
+
+[data-theme="dark"] body {
+  background: var(--onyx-bg-base);
+  color: var(--onyx-text-secondary);
 }
 
 [data-theme="dark"] body::after { display: none; }
+
+[data-theme="dark"] ::selection {
+  background: var(--onyx-green-deep);
+  color: var(--onyx-green-bright);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar { width: 8px; height: 8px; }
+[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--onyx-bg-base); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--onyx-border-subtle); border-radius: 4px; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: var(--onyx-border-accent); }
+
+[data-theme="dark"] *:focus-visible {
+  outline: 1px solid var(--onyx-green);
+  outline-offset: 2px;
+}
 
 html { scroll-behavior: smooth; }
 
