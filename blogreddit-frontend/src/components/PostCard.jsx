@@ -61,9 +61,8 @@ export default function PostCard({ post, onVote, index = 0, featured = false }) 
   }
 
   const darkCardStyle = isDark ? {
-    border: featured ? '1px solid #00ff88' : '1px solid #1c2420',
-    borderLeft: featured ? '3px solid #00ff88' : undefined,
-    boxShadow: 'none',
+    border: featured ? `2px solid #4ade4a` : `2px solid ${t.border}`,
+    boxShadow: hovered ? `5px 5px 0 ${t.border}` : `4px 4px 0 ${t.border}`,
   } : {
     border: `2px solid ${t.border}`,
     boxShadow: hovered ? `8px 8px 0 ${t.shadow}` : `5px 5px 0 ${t.shadow}`,
