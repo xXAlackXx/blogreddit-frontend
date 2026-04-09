@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
@@ -84,29 +84,40 @@ function QuoteBlock() {
 
 function TagCloud() {
   const { t } = useTheme()
+  const [searchParams] = useSearchParams()
+  const activeHashtag = searchParams.get('hashtag') || ''
+
   const tags = [
-    {label:'#TECH',v:'acid'},{label:'#ART',v:'rust'},{label:'#MUSIC',v:'amber'},
-    {label:'#LIFE',v:'steel'},{label:'#RANDOM',v:'teal'},{label:'#NEWS',v:'plain'},
+    {label:'#TECH',slug:'tech',v:'acid'},{label:'#ART',slug:'art',v:'rust'},{label:'#MUSIC',slug:'music',v:'amber'},
+    {label:'#LIFE',slug:'life',v:'steel'},{label:'#RANDOM',slug:'random',v:'teal'},{label:'#NEWS',slug:'news',v:'plain'},
   ]
   const COLORS = { acid:{bg:'#6DC800',c:'#111008'}, rust:{bg:'#E8420A',c:'#fff'}, amber:{bg:'#F0B800',c:'#111008'}, steel:{bg:'#1A6EC0',c:'#fff'}, teal:{bg:'#0A9E88',c:'#fff'}, plain:{bg:t.tabBg,c:t.textFaint} }
+
   return (
     <div style={{ background:t.panelBg, border:`2px solid ${t.border}`, boxShadow:`4px 4px 0 ${t.shadow}`, borderRadius:2, overflow:'hidden', transform:'rotate(0.3deg)', marginBottom:20 }}>
       <BlockHeader color="#F0B800">TAGS</BlockHeader>
       <div style={{ padding:14, display:'flex', flexWrap:'wrap', gap:8 }}>
-        {tags.map(tag=>{
+        {tags.map(tag => {
           const c = COLORS[tag.v]
+          const isActive = activeHashtag === tag.slug
           return (
-            <span key={tag.label} style={{
-              background:c.bg, color:c.c,
-              border:`2px solid ${t.border}`, boxShadow:`2px 2px 0 ${t.shadow}`,
-              padding:'3px 10px', fontFamily:"'JetBrains Mono',monospace",
-              fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.05em',
-              cursor:'pointer', transition:'all .15s',
-              transform:'rotate(-1deg)',
-            }}
-            onMouseEnter={e=>{e.currentTarget.style.transform='rotate(1deg) translate(-1px,-1px)';e.currentTarget.style.boxShadow=`3px 3px 0 ${t.shadow}`}}
-            onMouseLeave={e=>{e.currentTarget.style.transform='rotate(-1deg)';e.currentTarget.style.boxShadow=`2px 2px 0 ${t.shadow}`}}
-            >{tag.label}</span>
+            <Link
+              key={tag.label}
+              to={isActive ? '/' : `/?hashtag=${tag.slug}`}
+              style={{
+                background: c.bg, color: c.c,
+                border: isActive ? `2px solid #fff` : `2px solid ${t.border}`,
+                boxShadow: isActive ? `0 0 0 2px ${c.bg}, 3px 3px 0 ${t.shadow}` : `2px 2px 0 ${t.shadow}`,
+                padding:'3px 10px', fontFamily:"'JetBrains Mono',monospace",
+                fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.05em',
+                cursor:'pointer', transition:'all .15s',
+                transform: isActive ? 'rotate(1deg) translate(-1px,-1px)' : 'rotate(-1deg)',
+                textDecoration:'none', display:'inline-block',
+                outline: isActive ? `2px solid ${c.bg}` : 'none',
+              }}
+              onMouseEnter={e=>{e.currentTarget.style.transform='rotate(1deg) translate(-1px,-1px)';e.currentTarget.style.boxShadow=`3px 3px 0 ${t.shadow}`}}
+              onMouseLeave={e=>{if(!isActive){e.currentTarget.style.transform='rotate(-1deg)';e.currentTarget.style.boxShadow=`2px 2px 0 ${t.shadow}`}}}
+            >{tag.label}</Link>
           )
         })}
       </div>
