@@ -142,7 +142,7 @@ export default function Home() {
         </div>
 
         {/* Sidebar — hidden on mobile via inline media */}
-        <div className="sidebar-wrapper">
+        <div className="sidebar-wrapper" style={{ position:'sticky', top:16, alignSelf:'flex-start', minHeight:'calc(100vh - 32px)' }}>
           <Sidebar count={data?.count} />
         </div>
       </div>

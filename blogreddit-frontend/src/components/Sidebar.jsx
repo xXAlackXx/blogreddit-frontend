@@ -82,6 +82,30 @@ function QuoteBlock() {
   )
 }
 
+function RulesBlock() {
+  const { t } = useTheme()
+  const rules = [
+    'Be brutally honest.',
+    'No spam or low-effort posts.',
+    'Respect the wall.',
+    'Vote what matters.',
+    'Leave your mark.',
+  ]
+  return (
+    <div style={{ background:t.panelBg, border:`2px solid ${t.border}`, boxShadow:`4px 4px 0 ${t.shadow}`, borderRadius:2, overflow:'hidden', transform:'rotate(-0.2deg)', marginBottom:20 }}>
+      <BlockHeader color="#E8420A">RULES</BlockHeader>
+      <div style={{ padding:'12px 14px', display:'flex', flexDirection:'column', gap:10 }}>
+        {rules.map((r, i) => (
+          <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, color:'#E8420A', flexShrink:0, paddingTop:1 }}>{String(i+1).padStart(2,'0')}.</span>
+            <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:12, color:t.textSub, lineHeight:1.5 }}>{r}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function TagCloud() {
   const { t } = useTheme()
   const [searchParams] = useSearchParams()
@@ -180,6 +204,7 @@ export default function Sidebar({ count }) {
       <ProfileBlock user={user} profile={profile} />
       <CommunityBlock user={user} count={count} />
       <TagCloud />
+      <RulesBlock />
       <QuoteBlock />
     </div>
   )
