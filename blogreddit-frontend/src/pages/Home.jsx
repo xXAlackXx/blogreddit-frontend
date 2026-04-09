@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import api from '../api/axios'
 import PostCard from '../components/PostCard'
-import HeroStrip from '../components/HeroStrip'
 import SortTabs from '../components/SortTabs'
 import Sidebar from '../components/Sidebar'
 import { useTheme } from '../context/ThemeContext'
@@ -59,8 +58,6 @@ export default function Home() {
 
   return (
     <div style={{ position:'relative', zIndex:1 }}>
-      <HeroStrip count={data?.count} />
-
       <div className="feed-container" style={{ maxWidth:1100, margin:'0 auto', padding:'24px 16px', display:'flex', gap:28, alignItems:'flex-start' }}>
 
         {/* Feed */}
