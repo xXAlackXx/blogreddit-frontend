@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useRef, useState } from 'react'
 import api from '../api/axios'
 import { useAuth } from '../context/AuthContext'
@@ -151,20 +151,25 @@ export default function PostCard({ post, onVote, index = 0, featured = false }) 
             marginBottom:10,
           }}>{post.content}</p>
 
-          {/* Hashtags */}
-          {isDark && post.tags?.length > 0 && (
-            <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:10 }}>
-              {post.tags.map(tag => {
-                const key = tag.replace(/^#/, '').toLowerCase()
-                const tc = TAG_COLORS[key] || { bg:'#1a1a16', border:'#2a2a20', color:'#6b7280' }
-                return (
-                  <span key={tag} style={{
-                    background: tc.bg, border:`1px solid ${tc.border}`, color: tc.color,
-                    fontSize:9, padding:'2px 7px', borderRadius:2,
-                    fontFamily:"'Courier New',monospace", fontWeight:700, letterSpacing:'0.5px',
-                  }}>#{key}</span>
-                )
-              })}
+          {/* Hashtag category */}
+          {post.hashtag && (
+            <div style={{ marginBottom:8 }}>
+              <Link
+                to={`/?hashtag=${post.hashtag}`}
+                onClick={e => e.stopPropagation()}
+                style={{
+                  display:'inline-block',
+                  fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700,
+                  letterSpacing:'0.06em', padding:'3px 8px',
+                  background: isDark ? TAG_COLORS[post.hashtag]?.bg || '#0d1f14' : '#111008',
+                  border: `1px solid ${isDark ? TAG_COLORS[post.hashtag]?.border || '#1a6e34' : '#6DC800'}`,
+                  color: isDark ? TAG_COLORS[post.hashtag]?.color || '#6DC800' : '#6DC800',
+                  textDecoration:'none', borderRadius:2,
+                  transition:'all .12s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#6DC800'; e.currentTarget.style.color = '#111008' }}
+                onMouseLeave={e => { e.currentTarget.style.background = isDark ? TAG_COLORS[post.hashtag]?.bg || '#0d1f14' : '#111008'; e.currentTarget.style.color = isDark ? TAG_COLORS[post.hashtag]?.color || '#6DC800' : '#6DC800' }}
+              >#{post.hashtag}</Link>
             </div>
           )}
 

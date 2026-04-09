@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import api from '../api/axios'
 import PostCard from '../components/PostCard'
 import HeroStrip from '../components/HeroStrip'
@@ -33,6 +34,8 @@ function SkeletonCard({ rot = 0 }) {
 
 export default function Home() {
   const { t } = useTheme()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeHashtag = searchParams.get('hashtag') || ''
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const inputRef = useRef(null)
@@ -43,8 +46,13 @@ export default function Home() {
   }, [search])
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['posts', debouncedSearch],
-    queryFn: () => api.get(`/posts/?search=${debouncedSearch}`).then(r => r.data),
+    queryKey: ['posts', debouncedSearch, activeHashtag],
+    queryFn: () => {
+      const params = new URLSearchParams()
+      if (debouncedSearch) params.set('search', debouncedSearch)
+      if (activeHashtag) params.set('hashtag', activeHashtag)
+      return api.get(`/posts/?${params.toString()}`).then(r => r.data)
+    },
   })
 
   const rots = [0.5, -0.7, 0.3, -0.5, 0.8]
@@ -80,6 +88,27 @@ export default function Home() {
               onBlur={e=>{e.target.style.boxShadow=`3px 3px 0 ${t.shadow}`;e.target.style.borderColor=t.border}}
             />
           </div>
+
+          {activeHashtag && (
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textMuted, textTransform:'uppercase', letterSpacing:'0.1em' }}>
+                filtrando:
+              </span>
+              <span style={{
+                display:'inline-flex', alignItems:'center', gap:6,
+                fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700,
+                background:'#111008', border:'1px solid #6DC800', color:'#6DC800',
+                padding:'3px 10px', borderRadius:2,
+              }}>
+                #{activeHashtag}
+                <button
+                  onClick={() => setSearchParams({})}
+                  style={{ background:'none', border:'none', cursor:'pointer', color:'#E8420A', fontWeight:700, fontSize:14, padding:0, lineHeight:1 }}
+                  title="Quitar filtro"
+                >×</button>
+              </span>
+            </div>
+          )}
 
           <SortTabs count={data?.count} />
 

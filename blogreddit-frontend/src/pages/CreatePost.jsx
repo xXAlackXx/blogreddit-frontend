@@ -28,7 +28,6 @@ function parseMd(raw) {
 
 const ALLOWED = ['image/jpeg','image/png','image/gif','image/webp']
 const MAX_MB   = 5
-const TAG_COLS = ['#6DC800','#E8420A','#F0B800','#1A6EC0','#0A9E88']
 
 /* ── Toolbar Button ── */
 function TB({ label, title: ttl, onClick, th }) {
@@ -59,15 +58,16 @@ export default function CreatePost() {
 
   const [title,    setTitle]    = useState('')
   const [body,     setBody]     = useState('')
-  const [tags,     setTags]     = useState([])
-  const [tagInput, setTagInput] = useState('')
+  const [hashtag,  setHashtag]  = useState('')
   const [img,      setImg]      = useState(null)   // { file, preview, error }
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
 
   const words    = body.trim() ? body.trim().split(/\s+/).length : 0
   const readTime = Math.max(1, Math.round(words / 200))
-  const canPost  = user && title.trim() && !loading
+  const hashtagClean = hashtag.replace(/^#+/, '').toLowerCase().trim()
+  const hashtagValid = /^[a-z0-9_]{2,30}$/.test(hashtagClean)
+  const canPost  = user && title.trim() && hashtagValid && !loading
 
   /* ── Toolbar helpers ── */
   const insert = (before, after = '') => {
@@ -93,15 +93,6 @@ export default function CreatePost() {
     setImg({ file, preview: URL.createObjectURL(file), error: null })
   }
 
-  /* ── Tags ── */
-  const addTag = (e) => {
-    if (e.key !== 'Enter' && e.key !== ',') return
-    e.preventDefault()
-    const v = tagInput.trim().replace(/^#+/, '')
-    if (v && !tags.includes(v)) setTags([...tags, v])
-    setTagInput('')
-  }
-
   /* ── Submit ── */
   const handleSubmit = async () => {
     if (!canPost) return
@@ -110,6 +101,7 @@ export default function CreatePost() {
       const fd = new FormData()
       fd.append('title', title)
       fd.append('content', body)
+      fd.append('hashtag', hashtagClean)
       if (img?.file) fd.append('image', img.file)
       const res = await api.post('/posts/', fd)
       navigate(`/posts/${res.data.id}`)
@@ -263,23 +255,27 @@ export default function CreatePost() {
           )}
         </div>
 
-        {/* ── Tags ── */}
-        <div style={{ border:`2px solid ${t.border}`,boxShadow:`5px 5px 0 ${t.shadow}`,background:t.panelBg,padding:'16px 20px',marginBottom:24 }}>
+        {/* ── Hashtag (categoria obligatoria) ── */}
+        <div style={{ border:`2px solid ${hashtag && !hashtagValid ? '#E8420A' : hashtagValid ? '#6DC800' : t.border}`,boxShadow:`5px 5px 0 ${t.shadow}`,background:t.panelBg,padding:'16px 20px',marginBottom:24,transition:'border-color .15s' }}>
           <div style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:'0.22em',textTransform:'uppercase',color:t.textSub,marginBottom:12,display:'flex',alignItems:'center',gap:6 }}>
-            <span style={{ color:'#6DC800' }}>//</span> TAGS
+            <span style={{ color:'#6DC800' }}>//</span> HASHTAG <span style={{ color:'#E8420A' }}>*</span>
+            <span style={{ fontWeight:400,color:t.textMuted,letterSpacing:'0.08em',textTransform:'none',fontSize:10 }}>&nbsp;— categoría obligatoria</span>
           </div>
-          <div style={{ display:'flex',alignItems:'center',flexWrap:'wrap',gap:8 }}>
-            {tags.map((tag,i) => (
-              <div key={tag} style={{ display:'inline-flex',alignItems:'center',gap:6,fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,border:`2px solid ${t.border}`,boxShadow:`3px 3px 0 ${t.shadow}`,padding:'5px 10px',background:TAG_COLS[i%TAG_COLS.length],color:i%2===0?'#111008':'#fff',letterSpacing:'0.05em' }}>
-                #{tag}
-                <button onClick={()=>setTags(tags.filter(x=>x!==tag))} style={{ background:'none',border:'none',cursor:'pointer',fontSize:14,lineHeight:1,padding:0,color:'inherit',opacity:.7 }}>×</button>
-              </div>
-            ))}
+          <div style={{ display:'flex',alignItems:'center',gap:10 }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:20,fontWeight:700,color:'#6DC800',lineHeight:1 }}>#</span>
             <input
-              type="text" placeholder="#add tag… (Enter)"
-              value={tagInput} onChange={e=>setTagInput(e.target.value)} onKeyDown={addTag}
-              style={{ border:'none',background:'transparent',outline:'none',fontFamily:"'JetBrains Mono',monospace",fontSize:12,color:t.text,padding:'4px 2px',minWidth:180,letterSpacing:'0.05em' }}
+              type="text"
+              placeholder="ej: tech, arte, musica, vida…"
+              value={hashtag}
+              onChange={e => setHashtag(e.target.value.replace(/\s/g, '_').replace(/[^a-zA-Z0-9_#]/g, '').toLowerCase())}
+              maxLength={31}
+              style={{ border:'none',background:'transparent',outline:'none',fontFamily:"'JetBrains Mono',monospace",fontSize:16,fontWeight:700,color:t.text,padding:'4px 2px',minWidth:220,letterSpacing:'0.05em' }}
             />
+            {hashtagClean && (
+              <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:11,color: hashtagValid ? '#6DC800' : '#E8420A', marginLeft:'auto' }}>
+                {hashtagValid ? `✓ #${hashtagClean}` : 'mín. 2 chars, solo letras/números/_'}
+              </span>
+            )}
           </div>
         </div>
 
