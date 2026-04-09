@@ -62,25 +62,6 @@ function ProfileBlock({ user, profile }) {
   )
 }
 
-function QuoteBlock() {
-  return (
-    <div style={{
-      background:'#111008',
-      border:'2px solid #111008',
-      boxShadow:'4px 4px 0 #6DC800',
-      borderRadius:2, padding:16,
-      transform:'rotate(-0.8deg)',
-      marginBottom:20,
-    }}>
-      <p style={{ fontFamily:"'Lora',Georgia,serif", fontStyle:'italic', fontSize:13, color:'#9A9288', lineHeight:1.7, marginBottom:10 }}>
-        "The only way to do great work is to love what you do."
-      </p>
-      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, color:'#6DC800', textTransform:'uppercase', letterSpacing:'0.12em' }}>
-        — DECAY—84 ZINE
-      </span>
-    </div>
-  )
-}
 
 function RulesBlock() {
   const { t, isDark } = useTheme()
@@ -155,14 +136,7 @@ function CommunityBlock({ user, count }) {
   const { t } = useTheme()
   return (
     <div style={{ background:t.panelBg, border:`2px solid ${t.border}`, boxShadow:`4px 4px 0 ${t.shadow}`, borderRadius:2, overflow:'hidden', transform:'rotate(-0.3deg)', marginBottom:20 }}>
-      <div style={{ height:56, background:'linear-gradient(135deg, #111008 0%, #3A3630 100%)', borderBottom:'2px solid #6DC800', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', right:8, bottom:-8, fontFamily:"'Space Grotesk',sans-serif", fontSize:56, fontWeight:800, color:'rgba(109,200,0,0.12)', lineHeight:1, userSelect:'none' }}>84</div>
-        <div style={{ padding:'12px 14px' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, color:'#6DC800', textTransform:'uppercase', letterSpacing:'0.1em' }}>
-            // COMMUNITY
-          </span>
-        </div>
-      </div>
+      <BlockHeader color="#6DC800">COMMUNITY</BlockHeader>
       <div style={{ padding:14 }}>
         <div style={{ display:'flex', gap:20, marginBottom:14, paddingBottom:12, borderBottom:`1px solid ${t.borderLight}` }}>
           <div>
@@ -207,7 +181,6 @@ export default function Sidebar({ count }) {
       <CommunityBlock user={user} count={count} />
       <TagCloud />
       <RulesBlock />
-      <QuoteBlock />
     </div>
   )
 }
