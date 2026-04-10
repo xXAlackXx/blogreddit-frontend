@@ -259,8 +259,12 @@ function ThemeEditorPanel({ profile }) {
       })
       qc.invalidateQueries({ queryKey:['myTheme'] })
       setSavedOk(true); setTimeout(() => setSavedOk(false), 2500)
-    } catch { setSaveErr('// ERROR: could not save') }
-    finally { setSaving(false) }
+    } catch(err) {
+      console.error('Theme save error:', err.response?.data || err.message)
+      const d = err.response?.data
+      const msg = d ? Object.values(d).flat().join(' · ') : (err.message || 'network error')
+      setSaveErr('// ERROR: ' + msg)
+    } finally { setSaving(false) }
   }
 
   /* Banner upload / remove */
