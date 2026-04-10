@@ -204,7 +204,7 @@ export default function AuthPage({ initialTab = 'login' }) {
       <canvas ref={canvasRef} style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:1 }}/>
 
       {/* LEFT DARK PANEL */}
-      <div style={{ position:'fixed', top:0, left:0, width:'50%', height:'100%', background:C.ink, zIndex:2, overflow:'hidden' }}>
+      <div className="auth-left-panel" style={{ position:'fixed', top:0, left:0, width:'50%', height:'100%', background:C.ink, zIndex:2, overflow:'hidden' }}>
         {/* Acid dot */}
         <div style={{ position:'absolute', top:28, left:44, width:7, height:7, background:C.acid, opacity:.65 }}/>
         {/* Corner TR */}
@@ -220,10 +220,10 @@ export default function AuthPage({ initialTab = 'login' }) {
       </div>
 
       {/* RIGHT LIGHT PANEL */}
-      <div style={{ position:'fixed', top:0, right:0, width:'50%', height:'100%', background:C.wall, zIndex:2 }}/>
+      <div className="auth-right-panel" style={{ position:'fixed', top:0, right:0, width:'50%', height:'100%', background:C.wall, zIndex:2 }}/>
 
       {/* ACID DIVIDER */}
-      <div style={{ position:'fixed', top:0, left:'50%', width:4, height:'100%', background:C.acid, zIndex:12, transform:'translateX(-50%)', boxShadow:`0 0 20px rgba(109,200,0,0.3)` }}/>
+      <div className="auth-divider" style={{ position:'fixed', top:0, left:'50%', width:4, height:'100%', background:C.acid, zIndex:12, transform:'translateX(-50%)', boxShadow:`0 0 20px rgba(109,200,0,0.3)` }}/>
 
       {/* Right panel SVG halos */}
       <svg style={{ position:'fixed', top:0, right:0, width:'50%', height:'100%', pointerEvents:'none', zIndex:3, overflow:'hidden' }} viewBox="0 0 720 900" fill="none" preserveAspectRatio="xMidYMid slice">

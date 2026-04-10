@@ -65,7 +65,7 @@ export default function PostDetail() {
   const score = post.upvotes - post.downvotes
 
   return (
-    <div style={{ maxWidth:760, margin:'24px auto', padding:'0 16px' }} className="slam">
+    <div style={{ maxWidth:760, margin:'24px auto', padding:'0 16px' }} className="slam post-detail-wrap">
       {/* Back */}
       <Link to={backTo} style={{
         display:'inline-flex', alignItems:'center', gap:8,
@@ -79,11 +79,11 @@ export default function PostDetail() {
         <div style={{ height:4, background:'#6DC800' }}/>
         <div style={{ display:'flex' }}>
           {/* Vote */}
-          <div style={{ width:56, background:t.panelAlt, borderRight:`2px solid ${t.borderLight}`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-start', padding:'16px 8px', flexShrink:0 }}>
+          <div className="post-detail-vote" style={{ width:56, background:t.panelAlt, borderRight:`2px solid ${t.borderLight}`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-start', padding:'16px 8px', flexShrink:0 }}>
             <VoteButtons score={score} onVote={handleVote} disabled={!user}/>
           </div>
           {/* Content */}
-          <div style={{ padding:'18px 24px', flex:1 }}>
+          <div className="post-detail-content" style={{ padding:'18px 24px', flex:1 }}>
             <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
               <Link to={`/u/${post.author}`} style={{ textDecoration:'none', flexShrink:0 }}>
                 <div style={{ width:28, height:28, background:'linear-gradient(135deg,#E8420A,#F0B800)', border:`2px solid ${t.border}`, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
@@ -110,7 +110,7 @@ export default function PostDetail() {
       </div>
 
       {/* Comments */}
-      <div style={{ background:t.panelBg, border:`2px solid ${t.border}`, boxShadow:`5px 5px 0 ${t.shadow}`, padding:24 }}>
+      <div className="post-detail-comments" style={{ background:t.panelBg, border:`2px solid ${t.border}`, boxShadow:`5px 5px 0 ${t.shadow}`, padding:24 }}>
         <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:16, textTransform:'uppercase', letterSpacing:'0.06em', color:t.text, marginBottom:20, display:'flex', alignItems:'center', gap:10 }}>
           <div style={{ width:8, height:8, background:'#6DC800', border:`2px solid ${t.border}` }}/>
           {comments?.count ?? 0} COMMENTS

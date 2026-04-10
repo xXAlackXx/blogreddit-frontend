@@ -113,7 +113,7 @@ export default function CreatePost() {
 
   return (
     <div style={{ background:t.panelAlt, minHeight:'100vh', paddingBottom:80 }}>
-      <div style={{ maxWidth:1240, margin:'0 auto', padding:'28px 24px 0' }}>
+      <div className="create-wrap" style={{ maxWidth:1240, margin:'0 auto', padding:'28px 24px 0' }}>
 
         {/* Header */}
         <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:20 }}>
@@ -142,7 +142,7 @@ export default function CreatePost() {
         <div style={{ border:`2px solid ${t.border}`,boxShadow:`6px 6px 0 ${t.shadow}`,background:t.panelBg,overflow:'clip',marginBottom:16 }}>
 
           {/* Toolbar */}
-          <div style={{ display:'flex',alignItems:'stretch',borderBottom:`2px solid ${t.border}`,background:t.tabBg,position:'sticky',top:56,zIndex:20 }}>
+          <div className="create-toolbar" style={{ display:'flex',alignItems:'stretch',borderBottom:`2px solid ${t.border}`,background:t.tabBg,position:'sticky',top:56,zIndex:20 }}>
             <div style={{ display:'flex',alignItems:'stretch',borderRight:`2px solid ${t.borderMid}` }}>
               <TB label={<b>B</b>}    ttl="Bold"    onClick={()=>insert('**','**')} th={t} />
               <TB label={<i>I</i>}    ttl="Italic"  onClick={()=>insert('*','*')} th={t} />
@@ -282,7 +282,7 @@ export default function CreatePost() {
       </div>
 
       {/* ── Bottom Action Bar ── */}
-      <div style={{ position:'fixed',bottom:0,left:0,right:0,background:'#111008',borderTop:'2px solid #6DC800',padding:'0 32px',height:64,display:'flex',alignItems:'center',justifyContent:'space-between',zIndex:50 }}>
+      <div className="create-bottom-bar" style={{ position:'fixed',bottom:0,left:0,right:0,background:'#111008',borderTop:'2px solid #6DC800',padding:'0 32px',height:64,display:'flex',alignItems:'center',justifyContent:'space-between',zIndex:50 }}>
         <div style={{ display:'flex',alignItems:'center',gap:20 }}>
           <Link to="/" style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#9A9288',textDecoration:'none',letterSpacing:'0.12em',textTransform:'uppercase',transition:'color .15s' }}
             onMouseEnter={e=>e.currentTarget.style.color='#FDFCF8'}
@@ -295,7 +295,7 @@ export default function CreatePost() {
             </span>
           )}
         </div>
-        <button
+        <button className="create-publish-btn"
           onClick={handleSubmit} disabled={!canPost}
           style={{ fontFamily:"'Space Grotesk',sans-serif",fontSize:14,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.12em',background:canPost?'#6DC800':'#C8C2B6',color:'#111008',border:`2px solid ${canPost?'#6DC800':'#C8C2B6'}`,boxShadow:canPost?'5px 5px 0 rgba(109,200,0,0.4)':'none',padding:'12px 32px',cursor:canPost?'pointer':'not-allowed',transition:'all .15s' }}
           onMouseEnter={e=>{if(canPost){e.currentTarget.style.transform='translate(-2px,-2px)';e.currentTarget.style.boxShadow='7px 7px 0 rgba(109,200,0,0.4)'}}}

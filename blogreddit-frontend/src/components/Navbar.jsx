@@ -75,7 +75,7 @@ export default function Navbar() {
         <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
           {user ? (
             <>
-              <Link to="/create" style={{
+              <Link to="/create" className="nav-post-btn" style={{
                 background:'#6DC800', color:'#111008',
                 fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13,
                 textTransform:'uppercase', letterSpacing:'0.04em',
@@ -118,7 +118,7 @@ export default function Navbar() {
                 onMouseLeave={e => { e.currentTarget.style.background = '#E8420A'; e.currentTarget.style.color = '#0A0A06' }}
                 >⚡ CMD</Link>
               )}
-              <button onClick={handleLogout} style={{
+              <button onClick={handleLogout} className="nav-exit" style={{
                 background:'none', border:'1px solid #6A6258',
                 color:'#9A9288', padding:'6px 12px', borderRadius:2,
                 fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700,
