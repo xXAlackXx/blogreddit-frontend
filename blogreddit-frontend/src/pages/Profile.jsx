@@ -507,6 +507,31 @@ function BannerEditorPanel({ theme, setTheme, onLiveChange, onClose }) {
 
   useEffect(() => { setLocalTheme(theme) }, [theme])
 
+  /* Load selected font dynamically */
+  useEffect(() => {
+    if (!localTheme.font) return
+    const fontId = `banner-font-${localTheme.font.replace(/\s+/g, '-')}`
+    if (document.getElementById(fontId)) return
+    
+    const link = document.createElement('link')
+    link.id = fontId
+    link.rel = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(localTheme.font)}:wght@400;700&display=swap`
+    document.head.appendChild(link)
+  }, [localTheme.font])
+
+  /* Load all fonts once */
+  useEffect(() => {
+    if (document.getElementById('banner-editor-fonts')) return
+    const link = document.createElement('link')
+    link.id = 'banner-editor-fonts'
+    link.rel = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?${
+      FONTS.map(f => `family=${encodeURIComponent(f)}:wght@400;700`).join('&')
+    }&display=swap`
+    document.head.appendChild(link)
+  }, [])
+
   /* Derived preview values */
   const rgb = /^#[0-9A-Fa-f]{6}$/.test(localTheme.accent_color) ? hexToRgb(localTheme.accent_color) : '163,230,53'
 
@@ -865,6 +890,18 @@ export default function Profile() {
       setEmail(profile.email || '')
     }
   }, [profile])
+
+  /* Load all profile fonts on mount */
+  useEffect(() => {
+    if (document.getElementById('profile-all-fonts')) return
+    const link = document.createElement('link')
+    link.id = 'profile-all-fonts'
+    link.rel = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?${
+      FONTS.map(f => `family=${encodeURIComponent(f)}:wght@400;700`).join('&')
+    }&display=swap`
+    document.head.appendChild(link)
+  }, [])
 
   /* ── Avatar validation → open crop modal ── */
   const handleAvatarFile = (file) => {
