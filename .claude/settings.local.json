@@ -4,7 +4,8 @@
       "Bash(pip install:*)",
       "Bash(mkdir \"c:\\\\Users\\\\xXAlakXx\\\\Desktop\\\\Blog-Claude\\\\blogreddit-frontend\\\\src\\\\api\")",
       "Bash(mkdir \"c:\\\\Users\\\\xXAlakXx\\\\Desktop\\\\Blog-Claude\\\\blogreddit-frontend\\\\src\\\\pages\")",
-      "Bash(mkdir \"c:\\\\Users\\\\xXAlakXx\\\\Desktop\\\\Blog-Claude\\\\blogreddit-frontend\\\\src\\\\components\")"
+      "Bash(mkdir \"c:\\\\Users\\\\xXAlakXx\\\\Desktop\\\\Blog-Claude\\\\blogreddit-frontend\\\\src\\\\components\")",
+      "Bash(npm install:*)"
     ]
   }
 }

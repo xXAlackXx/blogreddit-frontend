@@ -684,7 +684,7 @@ export default function Profile() {
 
           {/* Tabs */}
           <div className="tab-bar" style={{ background:t.tabBg, border:`2px solid ${t.border}`, boxShadow:`4px 4px 0 ${t.shadow}`, display:'flex', overflowX:'auto' }}>
-            {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMMENTS'},{id:'settings',l:'SETTINGS'},{id:'theme',l:'🎨 THEME'}].map((t,i,arr)=>(
+            {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMMENTS'},{id:'settings',l:'SETTINGS'},{id:'theme',l:' THEME'}].map((t,i,arr)=>(
               <TabBtn key={t.id} label={t.l} active={tab===t.id} onClick={()=>setTab(t.id)} last={i===arr.length-1} />
             ))}
           </div>
