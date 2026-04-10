@@ -714,7 +714,7 @@ function BannerEditorPanel({ theme, setTheme, onClose }) {
 }
 
 /* ── Profile Banner Component ── */
-function ProfileBanner({ profile, theme, onEditBanner }) {
+function ProfileBanner({ theme, onEditBanner }) {
   const { t } = useTheme()
   const [isHovered, setIsHovered] = useState(false)
 
@@ -735,7 +735,7 @@ function ProfileBanner({ profile, theme, onEditBanner }) {
         width: '100%',
         maxWidth: 1200,
         margin: '0 auto 30px',
-        height: 280,
+        height: 200,
         background: bannerBg,
         opacity: theme.banner_opacity ? theme.banner_opacity / 100 : 1,
         border: `2px solid ${t.border}`,
@@ -765,62 +765,7 @@ function ProfileBanner({ profile, theme, onEditBanner }) {
         pointerEvents: 'none',
       }} />
 
-      {/* Content centered in banner */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 3,
-        padding: 20,
-      }}>
-        {/* Username with custom font */}
-        <h1 style={{
-          fontFamily: `'${theme.font || 'JetBrains Mono'}', monospace`,
-          fontWeight: 700,
-          fontSize: 48,
-          color: theme.accent_color || t.accent,
-          textShadow: theme.glow_intensity > 0
-            ? `0 0 ${theme.glow_intensity * 0.5}px rgba(${hexToRgb(theme.accent_color)},${theme.glow_intensity * 0.01})`
-            : 'none',
-          marginBottom: 12,
-          letterSpacing: '-0.02em',
-        }}>
-          {profile?.username || 'username'}
-        </h1>
-
-        {/* Bio */}
-        <p style={{
-          fontFamily: "'Lora', serif",
-          fontStyle: 'italic',
-          fontSize: 16,
-          color: '#fff',
-          maxWidth: 600,
-          textAlign: 'center',
-          marginBottom: 16,
-          textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-        }}>
-          {profile?.bio || 'No bio yet...'}
-        </p>
-
-        {/* Mood indicator */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 11,
-          color: theme.accent_color || t.accent,
-          textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-        }}>
-          <div className="blinking-dot" style={{ background: theme.accent_color || t.accent }} />
-          {MOODS.find(m => m[0] === theme.mood)?.[1] || '// ONLINE'}
-        </div>
-      </div>
-
-      {/* Edit overlay on hover */}
+      {/* Edit overlay on hover - solo botón */}
       {isHovered && (
         <div style={{
           position: 'absolute',
@@ -980,10 +925,9 @@ export default function Profile() {
 
   return (
     <div style={{ background:t.pageBg, minHeight:'100vh', padding:'20px 12px 60px' }}>
-      
-      {/* ══ TOP CENTERED BANNER ══ */}
+
+      {/* ══ TOP BANNER (solo fondo editable) ══ */}
       <ProfileBanner 
-        profile={profile} 
         theme={myTheme} 
         onEditBanner={() => setBannerEditMode(!bannerEditMode)} 
       />
@@ -994,7 +938,6 @@ export default function Profile() {
           <BannerEditorPanel 
             theme={myTheme} 
             setTheme={(updates) => {
-              // Update local state immediately for preview
               qc.setQueryData(['myTheme'], (old) => ({ ...(old||{}), ...updates }))
             }}
             onClose={() => setBannerEditMode(false)}
@@ -1009,21 +952,38 @@ export default function Profile() {
 
           {/* Avatar Panel */}
           <PanelBox title="// USER.EXE">
-            <div className="avatar-area" style={{ background: `linear-gradient(135deg, ${t.borderMid}, ${t.pageBg})` }}>
+            <div className="avatar-area" style={{
+              background: myTheme
+                ? (myTheme.has_custom_banner && myTheme.banner_image_url
+                    ? `url(${myTheme.banner_image_url}?t=${myTheme.updated_at||''}) center/cover`
+                    : myTheme.banner_gradient || '#F0B800')
+                : `linear-gradient(135deg, ${t.borderMid}, ${t.pageBg})`,
+              opacity: myTheme?.banner_opacity ? myTheme.banner_opacity / 100 : 1,
+            }}>
+              {/* Pattern overlay */}
+              {myTheme?.pattern && myTheme.pattern !== 'none' && (
+                <div style={{ position:'absolute', inset:0, background:PATTERN_BG[myTheme.pattern]||'', backgroundSize: myTheme.pattern==='dots'?'12px 12px':'auto', zIndex:0, pointerEvents:'none' }} />
+              )}
               {avatarSrc
                 ? <img src={avatarSrc} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0, zIndex:1 }} />
-                : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:80, color:t.text, position:'relative', zIndex:2 }}>
+                : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:80, color:'#fff', position:'relative', zIndex:2 }}>
                     {user.username?.[0]?.toUpperCase() || 'U'}
                   </span>
               }
             </div>
             <div style={{ padding:12, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:t.text }}>
+              {/* USERNAME CON FUENTE MODIFICABLE */}
+              <span style={{ 
+                fontFamily: `'${myTheme?.font || 'Space Grotesk'}', sans-serif`, 
+                fontWeight:700, 
+                fontSize:20, 
+                color: myTheme?.accent_color || t.text 
+              }}>
                 {profileLoading ? '...' : profile?.username}
               </span>
               <div style={{ display:'flex', alignItems:'center', gap:6, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:myTheme?.accent_color||t.accent }}>
                 <div className="blinking-dot" style={{ background:myTheme?.accent_color||t.accent }} />
-                {myTheme?.mood_display||'// ONLINE'}
+                {MOODS.find(m => m[0] === myTheme?.mood)?.[1] || '// ONLINE'}
               </div>
             </div>
           </PanelBox>
@@ -1199,7 +1159,6 @@ export default function Profile() {
         }
         .avatar-area {
           height: 200px;
-          background: linear-gradient(135deg, ${t.borderMid}, ${t.pageBg});
           position: relative;
           display: flex;
           align-items: center;
