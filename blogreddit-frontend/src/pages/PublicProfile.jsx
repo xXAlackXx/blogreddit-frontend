@@ -160,6 +160,119 @@ function TerminalEmpty({ lines }) {
   )
 }
 
+/* ── Public Profile Banner Component ── */
+function PublicProfileBanner({ profile, userTheme }) {
+  const { t } = useTheme()
+
+  if (!profile) return null
+
+  const bannerBg = userTheme
+    ? (userTheme.has_custom_banner && userTheme.banner_image_url
+        ? `url(${userTheme.banner_image_url}) center/cover`
+        : userTheme.banner_gradient || '#F0B800')
+    : '#F0B800'
+
+  const bannerOpacity = userTheme ? userTheme.banner_opacity / 100 : 1
+  const patternCss = userTheme ? (PATTERN_BG[userTheme.pattern] || '') : ''
+  const accent = userTheme?.accent_color || t.accent
+  const userFont = userTheme?.font || 'Space Grotesk'
+
+  const rgb = accent && /^#[0-9A-Fa-f]{6}$/.test(accent)
+    ? (() => { const h = accent.replace('#',''); return `${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}` })()
+    : '163,230,53'
+
+  return (
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      maxWidth: 1200,
+      margin: '0 auto 30px',
+      height: 280,
+      background: bannerBg,
+      opacity: bannerOpacity,
+      border: `2px solid ${t.border}`,
+      boxShadow: `6px 6px 0 ${t.shadow}`,
+      overflow: 'hidden',
+    }}>
+      {/* Pattern overlay */}
+      {patternCss && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: patternCss,
+          backgroundSize: userTheme?.pattern === 'dots' ? '12px 12px' : 'auto',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }} />
+      )}
+
+      {/* Scanline overlay */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 3px)',
+        zIndex: 2,
+        pointerEvents: 'none',
+      }} />
+
+      {/* Content centered in banner */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 3,
+        padding: 20,
+      }}>
+        {/* Username with custom font */}
+        <h1 style={{
+          fontFamily: `'${userFont}', monospace`,
+          fontWeight: 700,
+          fontSize: 48,
+          color: accent,
+          textShadow: userTheme?.glow_intensity > 0
+            ? `0 0 ${userTheme.glow_intensity * 0.5}px rgba(${rgb},${userTheme.glow_intensity * 0.01})`
+            : 'none',
+          marginBottom: 12,
+          letterSpacing: '-0.02em',
+        }}>
+          {profile?.username || 'username'}
+        </h1>
+
+        {/* Bio */}
+        <p style={{
+          fontFamily: "'Lora', serif",
+          fontStyle: 'italic',
+          fontSize: 16,
+          color: '#fff',
+          maxWidth: 600,
+          textAlign: 'center',
+          marginBottom: 16,
+          textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+        }}>
+          {profile?.bio || 'No bio yet...'}
+        </p>
+
+        {/* Mood indicator */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 11,
+          color: accent,
+          textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+        }}>
+          <div className="blinking-dot" style={{ background: accent }} />
+          {userTheme?.mood || '// MEMBER'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ── Main ── */
 export default function PublicProfile() {
   const { username } = useParams()
@@ -202,6 +315,26 @@ export default function PublicProfile() {
     link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(userTheme.font)}:wght@400;700&display=swap`
     document.head.appendChild(link)
   }, [userTheme?.font, username])
+
+  /* Load all fonts for banner display */
+  const FONTS = [
+    'JetBrains Mono','Space Mono','Fira Code','IBM Plex Mono',
+    'Source Code Pro','Inconsolata','Courier Prime','Share Tech Mono',
+    'VT323','Press Start 2P','Silkscreen','Pixelify Sans',
+    'Orbitron','Rajdhani','Exo 2','Oxanium',
+    'Audiowide','Chakra Petch','Major Mono Display',
+  ]
+
+  useEffect(() => {
+    if (document.getElementById('public-profile-fonts')) return
+    const link = document.createElement('link')
+    link.id   = 'public-profile-fonts'
+    link.rel  = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?${
+      FONTS.map(f=>`family=${encodeURIComponent(f)}:wght@400;700`).join('&')
+    }&display=swap`
+    document.head.appendChild(link)
+  }, [])
 
   const posts    = Array.isArray(postsData)    ? postsData    : (postsData?.results    || [])
   const comments = Array.isArray(commentsData) ? commentsData : (commentsData?.results || [])
@@ -255,6 +388,10 @@ export default function PublicProfile() {
   return (
     <div style={{ background:t.pageBg, minHeight:'100vh', padding:'20px 12px 60px' }}>
     <div className="profile-scope" style={{ ...scopeStyle }}>
+      
+      {/* ══ TOP CENTERED BANNER ══ */}
+      <PublicProfileBanner profile={profile} userTheme={userTheme} />
+
       <div className="profile-grid" style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'320px 1fr', gap:40, alignItems:'start' }}>
 
         {/* ══ LEFT COLUMN ══ */}
@@ -262,13 +399,10 @@ export default function PublicProfile() {
 
           {/* Avatar Panel */}
           <PanelBox title="// USER.EXE">
-            <div className="avatar-area" style={{ background:bannerBg, opacity:bannerOpacity }}>
-              {patternCss && (
-                <div style={{ position:'absolute', inset:0, background:patternCss, backgroundSize: userTheme?.pattern==='dots'?'12px 12px':'auto', zIndex:0, pointerEvents:'none' }} />
-              )}
+            <div className="avatar-area" style={{ background: `linear-gradient(135deg, ${t.borderMid}, ${t.pageBg})` }}>
               {profile?.avatar
                 ? <img src={profile.avatar} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0, zIndex:1 }} />
-                : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:80, color:'#fff', position:'relative', zIndex:2 }}>
+                : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:80, color:t.text, position:'relative', zIndex:2 }}>
                     {username?.[0]?.toUpperCase() || '?'}
                   </span>
               }
@@ -376,7 +510,7 @@ export default function PublicProfile() {
       <style>{`
         .avatar-area {
           height: 200px;
-          background: #F0B800;
+          background: linear-gradient(135deg, ${t.borderMid}, ${t.pageBg});
           position: relative;
           display: flex;
           align-items: center;

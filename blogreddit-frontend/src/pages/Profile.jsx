@@ -490,6 +490,373 @@ function ThemeEditorPanel({ profile }) {
   )
 }
 
+/* ── Banner Editor Panel Component ── */
+function BannerEditorPanel({ theme, setTheme, onClose }) {
+  const { t } = useTheme()
+  const qc = useQueryClient()
+  const bannerFileRef = useRef(null)
+  const [saving, setSaving] = useState(false)
+  const [savedOk, setSavedOk] = useState(false)
+  const [saveErr, setSaveErr] = useState('')
+
+  const [localTheme, setLocalTheme] = useState(theme)
+  const update = (k, v) => setLocalTheme(p => ({ ...p, [k]: v }))
+
+  useEffect(() => { setLocalTheme(theme) }, [theme])
+
+  /* Derived preview values */
+  const rgb = /^#[0-9A-Fa-f]{6}$/.test(localTheme.accent_color) ? hexToRgb(localTheme.accent_color) : '163,230,53'
+
+  /* Banner: custom image > selected gradient */
+  const bannerBg = localTheme.has_custom_banner && localTheme.banner_image_url
+    ? `url(${localTheme.banner_image_url}?t=${localTheme.updated_at||''}) center/cover`
+    : BANNER_PRESETS[localTheme.banner_preset] || BANNER_PRESETS.nebula
+
+  const previewGlow = localTheme.glow_intensity > 0
+    ? { boxShadow:`0 0 ${localTheme.glow_intensity*.35}px rgba(${rgb},${localTheme.glow_intensity*.004})` } : {}
+  const previewBorder = localTheme.border_accent > 0
+    ? { borderColor:`rgba(${rgb},${localTheme.border_accent/100})` } : {}
+
+  /* Save theme changes to backend */
+  const saveTheme = async () => {
+    setSaving(true); setSaveErr('')
+    try {
+      const { data: saved } = await api.patch('/users/me/theme/', {
+        accent_color:   localTheme.accent_color,
+        banner_preset:  localTheme.banner_preset,
+        pattern:        localTheme.pattern,
+        font:           localTheme.font,
+        banner_opacity: localTheme.banner_opacity,
+        glow_intensity: localTheme.glow_intensity,
+        border_accent:  localTheme.border_accent,
+        mood:           localTheme.mood,
+      })
+      qc.setQueryData(['myTheme'], saved)
+      setTheme(saved)
+      setSavedOk(true); setTimeout(() => setSavedOk(false), 2500)
+      setTimeout(() => onClose(), 1000)
+    } catch(err) {
+      console.error('Theme save error:', err.response?.data || err.message)
+      const d = err.response?.data
+      const msg = d ? Object.values(d).flat().join(' · ') : (err.message || 'network error')
+      setSaveErr('// ERROR: ' + msg)
+    } finally { setSaving(false) }
+  }
+
+  /* Banner upload */
+  const uploadBanner = async (file) => {
+    const fd = new FormData(); fd.append('banner_image', file)
+    try {
+      const { data } = await api.post('/users/me/theme/banner/', fd)
+      setLocalTheme(p => ({ ...p, has_custom_banner: data.has_custom_banner, banner_image_url: data.banner_image_url, updated_at: data.updated_at }))
+      qc.setQueryData(['myTheme'], (old) => ({ ...(old||{}), ...data }))
+      setTheme(data)
+    } catch(err) {
+      console.error('Banner upload error:', err.response?.data || err.message)
+    }
+  }
+
+  const removeBanner = async () => {
+    try {
+      const { data } = await api.delete('/users/me/theme/banner/')
+      setLocalTheme(p => ({ ...p, has_custom_banner: false, banner_image_url: null, ...data }))
+      qc.setQueryData(['myTheme'], (old) => ({ ...(old||{}), ...data }))
+      setTheme(data)
+    } catch(err) {
+      console.error('Banner remove error:', err.response?.data || err.message)
+    }
+  }
+
+  const SH = ({ children }) => (
+    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:t.textMuted, marginBottom:10, display:'flex', alignItems:'center', gap:6 }}>
+      <span style={{ color:localTheme.accent_color }}>//</span>{children}
+    </div>
+  )
+
+  return (
+    <div style={{ border:`2px solid ${t.border}`, boxShadow:`6px 6px 0 ${t.shadow}`, background:t.panelBg }}>
+      {/* Header bar */}
+      <div style={{ height:32, background:t.pageBg, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 14px', borderBottom:`1px solid ${t.border}` }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:localTheme.accent_color, textTransform:'uppercase' }}>// BANNER_EDITOR</span>
+        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+          <button onClick={onClose} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textMuted, background:'none', border:'none', cursor:'pointer' }}>
+            [CLOSE]
+          </button>
+          <div style={{ display:'flex', gap:5 }}>
+            {['#E8420A','#F0B800','#6DC800'].map((c,i) => (
+              <div key={i} style={{ width:8, height:8, background:c }} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding:20, display:'flex', flexDirection:'column', gap:20 }}>
+
+        {/* LIVE PREVIEW */}
+        <div>
+          <SH>LIVE PREVIEW</SH>
+          <div style={{ width:'100%', height:180, background:bannerBg, opacity:localTheme.banner_opacity/100, position:'relative', border:`2px solid ${t.border}`, overflow:'hidden', transition:'all .2s', ...previewGlow, ...previewBorder }}>
+            {localTheme.pattern && localTheme.pattern !== 'none' && (
+              <div style={{ position:'absolute', inset:0, background:PATTERN_BG[localTheme.pattern]||'', backgroundSize: localTheme.pattern==='dots'?'12px 12px':'auto', zIndex:1, pointerEvents:'none' }} />
+            )}
+            <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:3 }}>
+              <span style={{ fontFamily:`'${localTheme.font}',monospace`, fontWeight:700, fontSize:36, color:localTheme.accent_color }}>
+                USERNAME
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* BANNER PRESETS */}
+        <div>
+          <SH>BANNER GRADIENT</SH>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:6 }}>
+            {Object.entries(BANNER_PRESETS).map(([key,css]) => (
+              <div key={key} onClick={()=>{ update('banner_preset',key); update('has_custom_banner',false) }}
+                style={{ height:40, background:css, cursor:'pointer', border:`2px solid ${localTheme.banner_preset===key&&!localTheme.has_custom_banner?localTheme.accent_color:t.border}`, position:'relative', transition:'border-color .1s' }}>
+                <span style={{ position:'absolute', bottom:3, left:4, fontFamily:"'JetBrains Mono',monospace", fontSize:8, color:'rgba(255,255,255,.7)', textTransform:'uppercase', letterSpacing:'0.08em' }}>{key.replace('_',' ')}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* UPLOAD BANNER IMAGE */}
+        <div>
+          <SH>UPLOAD IMAGE</SH>
+          <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+            <button onClick={()=>bannerFileRef.current?.click()}
+              style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', background:'transparent', color:t.textSub, border:`2px solid ${t.border}`, padding:'8px 16px', cursor:'pointer' }}>
+              📷 CHOOSE IMAGE
+            </button>
+            {localTheme.has_custom_banner && (
+              <button onClick={removeBanner}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#E8420A', background:'none', border:'1px solid #E8420A', padding:'7px 12px', cursor:'pointer' }}>
+                REMOVE
+              </button>
+            )}
+            <input ref={bannerFileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" style={{ display:'none' }}
+              onChange={e=>{ if(e.target.files[0]) uploadBanner(e.target.files[0]) }} />
+          </div>
+        </div>
+
+        {/* PATTERN OVERLAY */}
+        <div>
+          <SH>PATTERN OVERLAY</SH>
+          <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+            {PATTERNS.map(([key,label]) => (
+              <button key={key} onClick={()=>update('pattern',key)}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:localTheme.pattern===key?700:400, color:localTheme.pattern===key?t.pageBg:t.textSub, background:localTheme.pattern===key?localTheme.accent_color:'transparent', border:`2px solid ${localTheme.pattern===key?localTheme.accent_color:t.border}`, padding:'6px 12px', cursor:'pointer', transition:'all .1s' }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* FONT SELECTOR */}
+        <div>
+          <SH>USERNAME FONT</SH>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:4, maxHeight:160, overflowY:'auto' }}>
+            {FONTS.map(f => (
+              <button key={f} onClick={()=>update('font',f)}
+                style={{ fontFamily:`'${f}',monospace`, fontSize:12, textAlign:'left', color:localTheme.font===f?t.pageBg:t.textSub, background:localTheme.font===f?localTheme.accent_color:'transparent', border:`1px solid ${localTheme.font===f?localTheme.accent_color:t.border}`, padding:'8px 12px', cursor:'pointer', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', transition:'all .1s' }}>
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* EFFECTS SLIDERS */}
+        <div>
+          <SH>EFFECTS</SH>
+          {[
+            { key:'banner_opacity', label:'BANNER OPACITY', min:20, max:100 },
+            { key:'glow_intensity', label:'GLOW INTENSITY', min:0, max:100 },
+            { key:'border_accent', label:'BORDER ACCENT', min:0, max:100 },
+          ].map(({key,label,min,max}) => (
+            <div key={key} style={{ marginBottom:12 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textMuted, marginBottom:4 }}>
+                <span>{label}</span>
+                <span style={{ color:localTheme.accent_color }}>{localTheme[key]}%</span>
+              </div>
+              <input type="range" min={min} max={max} value={localTheme[key]}
+                onChange={e=>update(key,parseInt(e.target.value))}
+                style={{ width:'100%', accentColor:localTheme.accent_color }} />
+            </div>
+          ))}
+        </div>
+
+        {/* MOOD STATUS */}
+        <div>
+          <SH>MOOD STATUS</SH>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+            {MOODS.map(([key,label]) => (
+              <button key={key} onClick={()=>update('mood',key)}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:localTheme.mood===key?700:400, color:localTheme.mood===key?t.pageBg:t.textSub, background:localTheme.mood===key?localTheme.accent_color:'transparent', border:`2px solid ${localTheme.mood===key?localTheme.accent_color:t.border}`, padding:'6px 12px', cursor:'pointer', transition:'all .1s' }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* SAVE BUTTON */}
+        <div style={{ display:'flex', alignItems:'center', gap:14, paddingTop:12, borderTop:`1px solid ${t.borderMid}` }}>
+          <button onClick={saveTheme} disabled={saving}
+            style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, textTransform:'uppercase', letterSpacing:'0.08em', background:saving?t.borderMid:localTheme.accent_color, color:t.pageBg, border:`2px solid ${saving?t.borderMid:localTheme.accent_color}`, boxShadow:saving?'none':`4px 4px 0 ${t.border}`, padding:'12px 32px', cursor:saving?'not-allowed':'pointer', transition:'all .15s' }}>
+            {saving ? 'SAVING...' : '[ SAVE ALL ]'}
+          </button>
+          {savedOk && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#0A9E88' }}>// saved ✓</span>}
+          {saveErr && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#E8420A' }}>{saveErr}</span>}
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+/* ── Profile Banner Component ── */
+function ProfileBanner({ profile, theme, onEditBanner }) {
+  const { t } = useTheme()
+  const [isHovered, setIsHovered] = useState(false)
+
+  if (!theme) return null
+
+  const bannerBg = theme.has_custom_banner && theme.banner_image_url
+    ? `url(${theme.banner_image_url}?t=${theme.updated_at||''}) center/cover`
+    : BANNER_PRESETS[theme.banner_preset] || BANNER_PRESETS.nebula
+
+  const patternBg = theme.pattern && theme.pattern !== 'none' ? PATTERN_BG[theme.pattern] : ''
+
+  return (
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: 1200,
+        margin: '0 auto 30px',
+        height: 280,
+        background: bannerBg,
+        opacity: theme.banner_opacity ? theme.banner_opacity / 100 : 1,
+        border: `2px solid ${t.border}`,
+        boxShadow: `6px 6px 0 ${t.shadow}`,
+        overflow: 'hidden',
+        transition: 'all .2s',
+      }}
+    >
+      {/* Pattern overlay */}
+      {patternBg && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: patternBg,
+          backgroundSize: theme.pattern === 'dots' ? '12px 12px' : 'auto',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }} />
+      )}
+
+      {/* Scanline overlay */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 3px)',
+        zIndex: 2,
+        pointerEvents: 'none',
+      }} />
+
+      {/* Content centered in banner */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 3,
+        padding: 20,
+      }}>
+        {/* Username with custom font */}
+        <h1 style={{
+          fontFamily: `'${theme.font || 'JetBrains Mono'}', monospace`,
+          fontWeight: 700,
+          fontSize: 48,
+          color: theme.accent_color || t.accent,
+          textShadow: theme.glow_intensity > 0
+            ? `0 0 ${theme.glow_intensity * 0.5}px rgba(${hexToRgb(theme.accent_color)},${theme.glow_intensity * 0.01})`
+            : 'none',
+          marginBottom: 12,
+          letterSpacing: '-0.02em',
+        }}>
+          {profile?.username || 'username'}
+        </h1>
+
+        {/* Bio */}
+        <p style={{
+          fontFamily: "'Lora', serif",
+          fontStyle: 'italic',
+          fontSize: 16,
+          color: '#fff',
+          maxWidth: 600,
+          textAlign: 'center',
+          marginBottom: 16,
+          textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+        }}>
+          {profile?.bio || 'No bio yet...'}
+        </p>
+
+        {/* Mood indicator */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 11,
+          color: theme.accent_color || t.accent,
+          textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+        }}>
+          <div className="blinking-dot" style={{ background: theme.accent_color || t.accent }} />
+          {MOODS.find(m => m[0] === theme.mood)?.[1] || '// ONLINE'}
+        </div>
+      </div>
+
+      {/* Edit overlay on hover */}
+      {isHovered && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 4,
+          transition: 'opacity .2s',
+        }}>
+          <button
+            onClick={onEditBanner}
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 14,
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              background: theme.accent_color || t.accent,
+              color: '#000',
+              border: 'none',
+              padding: '12px 32px',
+              cursor: 'pointer',
+              boxShadow: `4px 4px 0 ${t.border}`,
+              transition: 'all .15s',
+            }}
+          >
+            [ EDIT BANNER ]
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ── Main ── */
 export default function Profile() {
   const { user, refreshUser } = useAuth()
@@ -509,6 +876,7 @@ export default function Profile() {
   const [cropMime,    setCropMime]    = useState('image/jpeg')
   const [saved,       setSaved]       = useState(false)
   const [saveError,   setSaveError]   = useState('')
+  const [bannerEditMode, setBannerEditMode] = useState(false)  // toggle banner edit panel
 
   useEffect(() => { if (!user) navigate('/login') }, [user, navigate])
 
@@ -612,6 +980,28 @@ export default function Profile() {
 
   return (
     <div style={{ background:t.pageBg, minHeight:'100vh', padding:'20px 12px 60px' }}>
+      
+      {/* ══ TOP CENTERED BANNER ══ */}
+      <ProfileBanner 
+        profile={profile} 
+        theme={myTheme} 
+        onEditBanner={() => setBannerEditMode(!bannerEditMode)} 
+      />
+
+      {/* ══ BANNER EDIT PANEL (when toggled) ══ */}
+      {bannerEditMode && myTheme && (
+        <div style={{ maxWidth:1200, margin:'0 auto 30px' }}>
+          <BannerEditorPanel 
+            theme={myTheme} 
+            setTheme={(updates) => {
+              // Update local state immediately for preview
+              qc.setQueryData(['myTheme'], (old) => ({ ...(old||{}), ...updates }))
+            }}
+            onClose={() => setBannerEditMode(false)}
+          />
+        </div>
+      )}
+
       <div className="profile-grid" style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'320px 1fr', gap:40, alignItems:'start' }}>
 
         {/* ══ LEFT COLUMN ══ */}
@@ -619,19 +1009,10 @@ export default function Profile() {
 
           {/* Avatar Panel */}
           <PanelBox title="// USER.EXE">
-            <div className="avatar-area" style={myTheme ? {
-              background: myTheme.has_custom_banner && myTheme.banner_image_url
-                ? `url(${myTheme.banner_image_url}) center/cover`
-                : myTheme.banner_gradient || '#F0B800',
-              opacity: myTheme.banner_opacity ? myTheme.banner_opacity / 100 : 1,
-            } : {}}>
-              {/* pattern overlay */}
-              {myTheme?.pattern && myTheme.pattern !== 'none' && (
-                <div style={{ position:'absolute', inset:0, background:PATTERN_BG[myTheme.pattern]||'', backgroundSize: myTheme.pattern==='dots'?'12px 12px':'auto', zIndex:0, pointerEvents:'none' }} />
-              )}
+            <div className="avatar-area" style={{ background: `linear-gradient(135deg, ${t.borderMid}, ${t.pageBg})` }}>
               {avatarSrc
                 ? <img src={avatarSrc} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0, zIndex:1 }} />
-                : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:80, color:'#fff', position:'relative', zIndex:2 }}>
+                : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:80, color:t.text, position:'relative', zIndex:2 }}>
                     {user.username?.[0]?.toUpperCase() || 'U'}
                   </span>
               }
@@ -685,7 +1066,7 @@ export default function Profile() {
             {profileLoading
               ? <div style={{ height:40, background:'#E8E4DC', width:240, marginBottom:10 }} />
               : <>
-                  <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:32, letterSpacing:'-0.02em', color:t.text, marginBottom:10 }}>
+                  <h1 style={{ fontFamily:`'${myTheme?.font || 'Space Grotesk'}',sans-serif`, fontWeight:700, fontSize:32, letterSpacing:'-0.02em', color:myTheme?.accent_color||t.text, marginBottom:10 }}>
                     {profile?.username}
                   </h1>
                   <div style={{ marginBottom:6 }}>
@@ -818,7 +1199,7 @@ export default function Profile() {
         }
         .avatar-area {
           height: 200px;
-          background: #F0B800;
+          background: linear-gradient(135deg, ${t.borderMid}, ${t.pageBg});
           position: relative;
           display: flex;
           align-items: center;
