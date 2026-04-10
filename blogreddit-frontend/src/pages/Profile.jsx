@@ -34,6 +34,50 @@ const STRIP_COLORS  = ['#6DC800','#1A6EC0','#E8420A','#F0B800','#0A9E88']
 const ALLOWED_TYPES = ['image/jpeg','image/png','image/gif','image/webp']
 const MAX_AVATAR_MB = 2
 
+/* ── Theme editor constants ── */
+const BANNER_PRESETS = {
+  nebula:   'linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)',
+  void:     'linear-gradient(135deg, #0d1117, #161b22, #21262d)',
+  ember:    'linear-gradient(135deg, #1a0a0a, #2d1010, #3d1515)',
+  matrix:   'linear-gradient(135deg, #0a1a0a, #102d10, #153d15)',
+  solar:    'linear-gradient(135deg, #1a1a0a, #2d2d10, #3d3d15)',
+  cyber:    'linear-gradient(45deg,  #0a0a1a, #1a0a2d, #2d0a3d)',
+  deep_sea: 'linear-gradient(135deg, #0a1628, #162844, #1a3a5c)',
+  phantom:  'linear-gradient(135deg, #1a0a28, #2a1040, #3a1858)',
+  rust:     'linear-gradient(45deg,  #28100a, #402818, #584028)',
+}
+const ACCENT_PRESETS = [
+  '#A3E635','#4ade4a','#00ff41','#39ff14',
+  '#E8420A','#ff4500','#ff6b35',
+  '#1A6EC0','#0ea5e9','#00bfff',
+  '#F0B800','#ffd700','#ffb700',
+  '#0A9E88','#00ced1','#40e0d0',
+  '#e879f9','#c084fc','#ff79c6',
+]
+const FONTS = [
+  'JetBrains Mono','Space Mono','Fira Code','IBM Plex Mono',
+  'Source Code Pro','Inconsolata','Courier Prime','Share Tech Mono',
+  'VT323','Press Start 2P','Silkscreen','Pixelify Sans',
+  'Orbitron','Rajdhani','Exo 2','Oxanium',
+  'Audiowide','Chakra Petch','Major Mono Display',
+]
+const MOODS = [
+  ['online','// ONLINE'],['coding','// CODING'],['afk','// AFK'],
+  ['creating','// CREATING'],['lurking','// LURKING'],['vibing','// VIBING'],
+]
+const PATTERNS = [['none','NONE'],['grid','GRID'],['dots','DOTS'],['lines','LINES'],['cross','CROSS']]
+const PATTERN_BG = {
+  none:'',
+  grid:'repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 20px),repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,transparent 1px 20px)',
+  dots:'radial-gradient(circle,rgba(255,255,255,.08) 1px,transparent 1px)',
+  lines:'repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0 1px,transparent 1px 8px)',
+  cross:'repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0 1px,transparent 1px 12px),repeating-linear-gradient(-45deg,rgba(255,255,255,.04) 0 1px,transparent 1px 12px)',
+}
+function hexToRgb(hex) {
+  const h = hex.replace('#','')
+  return `${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}`
+}
+
 /* ── Sub-components ── */
 function WindowControls() {
   return (
@@ -157,6 +201,274 @@ function TerminalEmpty({ lines }) {
   )
 }
 
+/* ── Theme Editor Panel ── */
+function ThemeEditorPanel({ profile }) {
+  const { t } = useTheme()
+  const qc = useQueryClient()
+  const bannerFileRef = useRef(null)
+  const [fontSearch, setFontSearch] = useState('')
+  const [saving, setSaving]   = useState(false)
+  const [savedOk, setSavedOk] = useState(false)
+  const [saveErr, setSaveErr] = useState('')
+
+  const { data: themeData, isLoading: themeLoading } = useQuery({
+    queryKey: ['myTheme'],
+    queryFn: () => api.get('/users/me/theme/').then(r => r.data),
+  })
+
+  const DEFAULT_THEME = {
+    accent_color:'#A3E635', banner_preset:'nebula', pattern:'none',
+    font:'JetBrains Mono', banner_opacity:100, glow_intensity:25,
+    border_accent:0, mood:'online', has_banner_image:false, banner_image_url:null,
+  }
+  const [ts, setTs] = useState(DEFAULT_THEME)
+  const update = (k, v) => setTs(p => ({ ...p, [k]: v }))
+
+  useEffect(() => { if (themeData) setTs(p => ({ ...p, ...themeData })) }, [themeData])
+
+  /* Load all preview fonts once */
+  useEffect(() => {
+    if (document.getElementById('theme-editor-fonts')) return
+    const link = document.createElement('link')
+    link.id   = 'theme-editor-fonts'
+    link.rel  = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?${
+      FONTS.map(f=>`family=${encodeURIComponent(f)}:wght@400;700`).join('&')
+    }&display=swap`
+    document.head.appendChild(link)
+  }, [])
+
+  /* Derived preview values */
+  const rgb      = /^#[0-9A-Fa-f]{6}$/.test(ts.accent_color) ? hexToRgb(ts.accent_color) : '163,230,53'
+  const bannerBg = ts.has_banner_image && ts.banner_image_url
+    ? `url(${api.defaults.baseURL + ts.banner_image_url.replace('/api/users','/users')}) center/cover`
+    : BANNER_PRESETS[ts.banner_preset] || BANNER_PRESETS.nebula
+  const previewGlow   = ts.glow_intensity > 0
+    ? { boxShadow:`0 0 ${ts.glow_intensity*.35}px rgba(${rgb},${ts.glow_intensity*.004})` } : {}
+  const previewBorder = ts.border_accent > 0
+    ? { borderColor:`rgba(${rgb},${ts.border_accent/100})` } : {}
+
+  /* Save */
+  const saveTheme = async () => {
+    setSaving(true); setSaveErr('')
+    try {
+      await api.patch('/users/me/theme/', {
+        accent_color:ts.accent_color, banner_preset:ts.banner_preset,
+        pattern:ts.pattern, font:ts.font, banner_opacity:ts.banner_opacity,
+        glow_intensity:ts.glow_intensity, border_accent:ts.border_accent, mood:ts.mood,
+      })
+      qc.invalidateQueries({ queryKey:['myTheme'] })
+      setSavedOk(true); setTimeout(() => setSavedOk(false), 2500)
+    } catch { setSaveErr('// ERROR: could not save') }
+    finally { setSaving(false) }
+  }
+
+  /* Banner upload / remove */
+  const uploadBanner = async (file) => {
+    const fd = new FormData(); fd.append('banner_image', file)
+    try {
+      const { data } = await api.post('/users/me/theme/banner/', fd)
+      setTs(p => ({ ...p, has_banner_image:true, banner_image_url:`${data.banner_image_url}?t=${Date.now()}` }))
+    } catch {}
+  }
+  const removeBanner = async () => {
+    try {
+      await api.post('/users/me/theme/banner/remove/')
+      setTs(p => ({ ...p, has_banner_image:false, banner_image_url:null }))
+    } catch {}
+  }
+
+  if (themeLoading) return (
+    <div style={{ padding:40, textAlign:'center', fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:t.textMuted }}>
+      // LOADING THEME...
+    </div>
+  )
+
+  const SH = ({ children }) => (
+    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:t.textMuted, marginBottom:10, display:'flex', alignItems:'center', gap:6 }}>
+      <span style={{ color:ts.accent_color }}>//</span>{children}
+    </div>
+  )
+
+  const filteredFonts = FONTS.filter(f => f.toLowerCase().includes(fontSearch.toLowerCase()))
+
+  return (
+    <div style={{ border:`2px solid ${t.border}`, boxShadow:`6px 6px 0 ${t.shadow}`, background:t.panelBg }}>
+      {/* Header bar */}
+      <div style={{ height:24, background:t.pageBg, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 10px', borderBottom:`1px solid ${t.border}` }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:ts.accent_color, textTransform:'uppercase' }}>// THEME_EDITOR</span>
+        <WindowControls />
+      </div>
+
+      <div className="theme-editor-grid" style={{ display:'grid', gridTemplateColumns:'220px 1fr' }}>
+
+        {/* ── LIVE PREVIEW ── */}
+        <div style={{ borderRight:`2px solid ${t.border}`, padding:16, background:t.panelAlt, display:'flex', flexDirection:'column', gap:12, alignItems:'center' }}>
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:t.textMuted, textTransform:'uppercase', letterSpacing:'0.16em', alignSelf:'flex-start' }}>// PREVIEW</div>
+
+          {/* Preview card */}
+          <div style={{ width:'100%', border:`2px solid ${t.border}`, overflow:'hidden', transition:'all .2s', ...previewGlow, ...previewBorder }}>
+            {/* Banner */}
+            <div style={{ height:72, background:bannerBg, opacity:ts.banner_opacity/100, position:'relative' }}>
+              {PATTERN_BG[ts.pattern] && (
+                <div style={{ position:'absolute', inset:0, background:PATTERN_BG[ts.pattern], backgroundSize: ts.pattern==='dots'?'12px 12px':'auto' }} />
+              )}
+            </div>
+            {/* Info */}
+            <div style={{ background:t.panelBg, padding:'10px 12px' }}>
+              <div style={{ fontFamily:`'${ts.font}',monospace`, fontSize:10, color:ts.accent_color, borderLeft:`2px solid rgba(${rgb},.3)`, paddingLeft:6, marginBottom:6 }}>
+                {MOODS.find(m=>m[0]===ts.mood)?.[1]||'// ONLINE'}
+              </div>
+              <div style={{ fontFamily:`'${ts.font}',monospace`, fontWeight:700, fontSize:15, color:ts.accent_color, marginBottom:4 }}>
+                {profile?.username||'username'}
+              </div>
+              <div style={{ display:'inline-block', fontFamily:"'JetBrains Mono',monospace", fontSize:8, padding:'2px 6px', background:`rgba(${rgb},.12)`, color:ts.accent_color, letterSpacing:'0.1em', marginBottom:6 }}>
+                RECRUIT · LVL 01
+              </div>
+              <div style={{ fontFamily:`'${ts.font}',monospace`, fontSize:10, color:t.textMuted, lineHeight:1.4, marginBottom:8 }}>
+                {profile?.bio||'No bio yet...'}
+              </div>
+              <div style={{ display:'flex', gap:10, fontFamily:"'JetBrains Mono',monospace", fontSize:9 }}>
+                <span><span style={{ color:ts.accent_color }}>{profile?.posts_count??0}</span> <span style={{ color:t.textMuted }}>POSTS</span></span>
+                <span><span style={{ color:ts.accent_color }}>{profile?.karma??0}</span> <span style={{ color:t.textMuted }}>KARMA</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:t.textMuted, alignSelf:'flex-start' }}>
+            accent: <span style={{ color:ts.accent_color }}>{ts.accent_color}</span>
+          </div>
+        </div>
+
+        {/* ── CONTROLS ── */}
+        <div style={{ padding:20, display:'flex', flexDirection:'column', gap:20, overflowY:'auto', maxHeight:580 }}>
+
+          {/* ACCENT COLOR */}
+          <div>
+            <SH>ACCENT COLOR</SH>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:10 }}>
+              {ACCENT_PRESETS.map(c => (
+                <div key={c} onClick={() => update('accent_color', c)}
+                  title={c}
+                  style={{ width:20, height:20, background:c, cursor:'pointer', border:`2px solid ${ts.accent_color===c?t.text:'transparent'}`, boxSizing:'border-box', transition:'border-color .1s' }} />
+              ))}
+            </div>
+            <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+              <input type="color" value={/^#[0-9A-Fa-f]{6}$/.test(ts.accent_color)?ts.accent_color:'#A3E635'}
+                onChange={e=>update('accent_color',e.target.value)}
+                style={{ width:32, height:32, padding:2, border:`2px solid ${t.border}`, background:'none', cursor:'pointer' }} />
+              <input type="text" value={ts.accent_color} maxLength={7}
+                onChange={e=>{ const v=e.target.value; if(/^#?[0-9a-fA-F]{0,6}$/.test(v)) update('accent_color', v.startsWith('#')?v:'#'+v) }}
+                onBlur={e=>{ if(!/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) update('accent_color', themeData?.accent_color||'#A3E635') }}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:13, color:t.text, background:t.panelAlt, border:`2px solid ${t.border}`, padding:'6px 10px', width:88, outline:'none' }} />
+            </div>
+          </div>
+
+          {/* BANNER */}
+          <div>
+            <SH>BANNER</SH>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:5, marginBottom:10 }}>
+              {Object.entries(BANNER_PRESETS).map(([key,css]) => (
+                <div key={key} onClick={()=>{ update('banner_preset',key); update('has_banner_image',false) }}
+                  style={{ height:32, background:css, cursor:'pointer', border:`2px solid ${ts.banner_preset===key&&!ts.has_banner_image?ts.accent_color:t.border}`, position:'relative', transition:'border-color .1s' }}>
+                  <span style={{ position:'absolute', bottom:2, left:3, fontFamily:"'JetBrains Mono',monospace", fontSize:7, color:'rgba(255,255,255,.6)', textTransform:'uppercase', letterSpacing:'0.08em' }}>{key.replace('_',' ')}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
+              <button onClick={()=>bannerFileRef.current?.click()}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', background:'transparent', color:t.textSub, border:`2px solid ${t.border}`, padding:'6px 12px', cursor:'pointer' }}>
+                📷 UPLOAD IMAGE
+              </button>
+              {ts.has_banner_image && (
+                <button onClick={removeBanner}
+                  style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#E8420A', background:'none', border:'1px solid #E8420A', padding:'5px 10px', cursor:'pointer' }}>
+                  REMOVE
+                </button>
+              )}
+              <input ref={bannerFileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" style={{ display:'none' }}
+                onChange={e=>{ if(e.target.files[0]) uploadBanner(e.target.files[0]) }} />
+            </div>
+          </div>
+
+          {/* PATTERN */}
+          <div>
+            <SH>PATTERN OVERLAY</SH>
+            <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+              {PATTERNS.map(([key,label]) => (
+                <button key={key} onClick={()=>update('pattern',key)}
+                  style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:ts.pattern===key?700:400, color:ts.pattern===key?t.pageBg:t.textSub, background:ts.pattern===key?ts.accent_color:'transparent', border:`2px solid ${ts.pattern===key?ts.accent_color:t.border}`, padding:'5px 10px', cursor:'pointer', transition:'all .1s' }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* FONT */}
+          <div>
+            <SH>PROFILE FONT</SH>
+            <input type="text" placeholder="🔍 search fonts..." value={fontSearch}
+              onChange={e=>setFontSearch(e.target.value)}
+              style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:t.text, background:t.panelAlt, border:`2px solid ${t.border}`, padding:'6px 10px', width:'100%', outline:'none', marginBottom:8, boxSizing:'border-box' }} />
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:4, maxHeight:140, overflowY:'auto' }}>
+              {filteredFonts.map(f => (
+                <button key={f} onClick={()=>update('font',f)}
+                  style={{ fontFamily:`'${f}',monospace`, fontSize:12, textAlign:'left', color:ts.font===f?t.pageBg:t.textSub, background:ts.font===f?ts.accent_color:'transparent', border:`1px solid ${ts.font===f?ts.accent_color:t.border}`, padding:'6px 10px', cursor:'pointer', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', transition:'all .1s' }}>
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* EFFECTS */}
+          <div>
+            <SH>EFFECTS</SH>
+            {[
+              { key:'banner_opacity', label:'BANNER OPACITY', min:20, max:100 },
+              { key:'glow_intensity', label:'GLOW',           min:0,  max:100 },
+              { key:'border_accent',  label:'BORDER ACCENT',  min:0,  max:100 },
+            ].map(({key,label,min,max}) => (
+              <div key={key} style={{ marginBottom:10 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textMuted, marginBottom:4 }}>
+                  <span>{label}</span>
+                  <span style={{ color:ts.accent_color }}>{ts[key]}%</span>
+                </div>
+                <input type="range" min={min} max={max} value={ts[key]}
+                  onChange={e=>update(key,parseInt(e.target.value))}
+                  style={{ width:'100%', accentColor:ts.accent_color }} />
+              </div>
+            ))}
+          </div>
+
+          {/* MOOD */}
+          <div>
+            <SH>MOOD STATUS</SH>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+              {MOODS.map(([key,label]) => (
+                <button key={key} onClick={()=>update('mood',key)}
+                  style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, fontWeight:ts.mood===key?700:400, color:ts.mood===key?t.pageBg:t.textSub, background:ts.mood===key?ts.accent_color:'transparent', border:`2px solid ${ts.mood===key?ts.accent_color:t.border}`, padding:'5px 10px', cursor:'pointer', transition:'all .1s' }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* SAVE */}
+          <div style={{ display:'flex', alignItems:'center', gap:14, paddingTop:8, borderTop:`1px solid ${t.borderMid}` }}>
+            <button onClick={saveTheme} disabled={saving}
+              style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13, textTransform:'uppercase', letterSpacing:'0.08em', background:saving?t.borderMid:ts.accent_color, color:t.pageBg, border:`2px solid ${saving?t.borderMid:ts.accent_color}`, boxShadow:saving?'none':`4px 4px 0 ${t.border}`, padding:'10px 28px', cursor:saving?'not-allowed':'pointer', transition:'all .15s' }}>
+              {saving ? 'SAVING...' : '[ SAVE_THEME ]'}
+            </button>
+            {savedOk && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#0A9E88' }}>// saved ✓</span>}
+            {saveErr && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#E8420A' }}>{saveErr}</span>}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ── Main ── */
 export default function Profile() {
   const { user, refreshUser } = useAuth()
@@ -199,6 +511,13 @@ export default function Profile() {
     queryFn: () => api.get('/users/me/comments/').then(r => r.data),
     enabled: !!user,
     staleTime: 30_000,
+  })
+
+  const { data: myTheme } = useQuery({
+    queryKey: ['myTheme'],
+    queryFn: () => api.get('/users/me/theme/').then(r => r.data),
+    enabled: !!user,
+    staleTime: 60_000,
   })
 
   /* Sync form when profile loads */
@@ -279,7 +598,16 @@ export default function Profile() {
 
           {/* Avatar Panel */}
           <PanelBox title="// USER.EXE">
-            <div className="avatar-area">
+            <div className="avatar-area" style={myTheme ? {
+              background: myTheme.has_banner_image && myTheme.banner_image_url
+                ? `url(${api.defaults.baseURL + myTheme.banner_image_url.replace('/api/users','/users')}) center/cover`
+                : myTheme.banner_css || '#F0B800',
+              opacity: myTheme.banner_opacity ? myTheme.banner_opacity / 100 : 1,
+            } : {}}>
+              {/* pattern overlay */}
+              {myTheme?.pattern_css && (
+                <div style={{ position:'absolute', inset:0, background:myTheme.pattern_css, backgroundSize: myTheme.pattern==='dots'?'12px 12px':'auto', zIndex:0, pointerEvents:'none' }} />
+              )}
               {avatarSrc
                 ? <img src={avatarSrc} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0, zIndex:1 }} />
                 : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:80, color:'#fff', position:'relative', zIndex:2 }}>
@@ -291,9 +619,9 @@ export default function Profile() {
               <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:t.text }}>
                 {profileLoading ? '...' : profile?.username}
               </span>
-              <div style={{ display:'flex', alignItems:'center', gap:6, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.accent }}>
-                <div className="blinking-dot" style={{ background:t.accent }} />
-                // ONLINE
+              <div style={{ display:'flex', alignItems:'center', gap:6, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:myTheme?.accent_color||t.accent }}>
+                <div className="blinking-dot" style={{ background:myTheme?.accent_color||t.accent }} />
+                {myTheme?.mood_display||'// ONLINE'}
               </div>
             </div>
           </PanelBox>
@@ -355,8 +683,8 @@ export default function Profile() {
           </header>
 
           {/* Tabs */}
-          <div className="tab-bar" style={{ background:t.tabBg, border:`2px solid ${t.border}`, boxShadow:`4px 4px 0 ${t.shadow}`, display:'flex' }}>
-            {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMMENTS'},{id:'settings',l:'SETTINGS'}].map((t,i,arr)=>(
+          <div className="tab-bar" style={{ background:t.tabBg, border:`2px solid ${t.border}`, boxShadow:`4px 4px 0 ${t.shadow}`, display:'flex', overflowX:'auto' }}>
+            {[{id:'posts',l:'POSTS'},{id:'comments',l:'COMMENTS'},{id:'settings',l:'SETTINGS'},{id:'theme',l:'🎨 THEME'}].map((t,i,arr)=>(
               <TabBtn key={t.id} label={t.l} active={tab===t.id} onClick={()=>setTab(t.id)} last={i===arr.length-1} />
             ))}
           </div>
@@ -383,6 +711,11 @@ export default function Profile() {
                   : comments.map((c,i) => <CommentCard key={c.id} comment={c} index={i} />)
               }
             </div>
+          )}
+
+          {/* ── Tab: THEME ── */}
+          {tab === 'theme' && (
+            <ThemeEditorPanel profile={profile} />
           )}
 
           {/* ── Tab: SETTINGS ── */}
@@ -457,6 +790,11 @@ export default function Profile() {
       )}
 
       <style>{`
+        .theme-editor-grid { min-height: 500px; }
+        @media (max-width: 700px) {
+          .theme-editor-grid { grid-template-columns: 1fr !important; }
+          .theme-editor-grid > *:first-child { border-right: none !important; border-bottom: 2px solid; }
+        }
         .avatar-area {
           height: 200px;
           background: #F0B800;

@@ -1,8 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import api from '../api/axios'
 import { useTheme } from '../context/ThemeContext'
+
+const PATTERN_BG = {
+  none:'',
+  grid:'repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 20px),repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,transparent 1px 20px)',
+  dots:'radial-gradient(circle,rgba(255,255,255,.08) 1px,transparent 1px)',
+  lines:'repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0 1px,transparent 1px 8px)',
+  cross:'repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0 1px,transparent 1px 12px),repeating-linear-gradient(-45deg,rgba(255,255,255,.04) 0 1px,transparent 1px 12px)',
+}
 
 /* ── helpers ── */
 function fmtDate(iso) {
@@ -175,9 +183,47 @@ export default function PublicProfile() {
     enabled: !!profile,
   })
 
+  const { data: userTheme } = useQuery({
+    queryKey: ['userTheme', username],
+    queryFn: () => api.get(`/users/${username}/theme/`).then(r => r.data),
+    enabled: !!profile,
+    staleTime: 120_000,
+  })
+
+  /* Load the profile owner's custom font */
+  useEffect(() => {
+    if (!userTheme?.font) return
+    const id  = `pub-font-${username}`
+    const old = document.getElementById(id)
+    if (old) old.remove()
+    const link = document.createElement('link')
+    link.id   = id
+    link.rel  = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(userTheme.font)}:wght@400;700&display=swap`
+    document.head.appendChild(link)
+  }, [userTheme?.font, username])
+
   const posts    = Array.isArray(postsData)    ? postsData    : (postsData?.results    || [])
   const comments = Array.isArray(commentsData) ? commentsData : (commentsData?.results || [])
   const rank     = getRank(profile?.karma)
+
+  /* Derived theme values */
+  const accent      = userTheme?.accent_color || t.accent
+  const userFont    = userTheme?.font         || 'Space Grotesk'
+  const bannerBg    = userTheme
+    ? (userTheme.has_banner_image && userTheme.banner_image_url
+        ? `url(${api.defaults.baseURL + userTheme.banner_image_url.replace('/api/users','/users')}) center/cover`
+        : userTheme.banner_css || '#F0B800')
+    : '#F0B800'
+  const bannerOpacity = userTheme ? userTheme.banner_opacity / 100 : 1
+  const patternCss  = userTheme ? (PATTERN_BG[userTheme.pattern] || '') : ''
+  const moodDisplay = userTheme?.mood_display || '// MEMBER'
+  const cssVars     = userTheme?.css_vars     || {}
+
+  const glowStyle   = (userTheme?.glow_intensity > 0 && userTheme?.css_vars?.['--user-accent-glow'])
+    ? { boxShadow: userTheme.css_vars['--user-accent-glow'] } : {}
+  const borderStyle = (userTheme?.border_accent > 0 && userTheme?.css_vars?.['--user-border-accent'])
+    ? { borderColor: userTheme.css_vars['--user-border-accent'] } : {}
 
   if (isError) return (
     <div style={{ background:t.pageBg, minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -187,8 +233,14 @@ export default function PublicProfile() {
     </div>
   )
 
+  /* Inject CSS vars into a scope div so they only affect the profile */
+  const scopeStyle = Object.keys(cssVars).length
+    ? Object.fromEntries(Object.entries(cssVars).map(([k,v]) => [k,v]))
+    : {}
+
   return (
     <div style={{ background:t.pageBg, minHeight:'100vh', padding:'20px 12px 60px' }}>
+    <div className="profile-scope" style={{ ...scopeStyle }}>
       <div className="profile-grid" style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'320px 1fr', gap:40, alignItems:'start' }}>
 
         {/* ══ LEFT COLUMN ══ */}
@@ -196,7 +248,10 @@ export default function PublicProfile() {
 
           {/* Avatar Panel */}
           <PanelBox title="// USER.EXE">
-            <div className="avatar-area">
+            <div className="avatar-area" style={{ background:bannerBg, opacity:bannerOpacity }}>
+              {patternCss && (
+                <div style={{ position:'absolute', inset:0, background:patternCss, backgroundSize: userTheme?.pattern==='dots'?'12px 12px':'auto', zIndex:0, pointerEvents:'none' }} />
+              )}
               {profile?.avatar
                 ? <img src={profile.avatar} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0, zIndex:1 }} />
                 : <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:80, color:'#fff', position:'relative', zIndex:2 }}>
@@ -205,11 +260,11 @@ export default function PublicProfile() {
               }
             </div>
             <div style={{ padding:12, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:t.text }}>
+              <span style={{ fontFamily:`'${userFont}',sans-serif`, fontWeight:700, fontSize:18, color:accent }}>
                 {profileLoading ? '...' : profile?.username}
               </span>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textMuted }}>
-                // MEMBER
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:accent, borderLeft:`2px solid rgba(${userTheme?.css_vars?.['--user-accent-rgb']||'163,230,53'},.3)`, paddingLeft:6 }}>
+                {moodDisplay}
               </div>
             </div>
           </PanelBox>
@@ -225,7 +280,7 @@ export default function PublicProfile() {
               <div style={{ marginTop:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textMuted }}>
                 <span>LEVEL {rank.label}</span>
                 <div style={{ height:6, background:t.borderMid, marginTop:4 }}>
-                  <div style={{ height:'100%', background:t.accent, width:`${Math.min(rank.progress,100)}%`, transition:'width 1s ease' }} />
+                  <div style={{ height:'100%', background:accent, width:`${Math.min(rank.progress,100)}%`, transition:'width 1s ease' }} />
                 </div>
               </div>
             </div>
@@ -248,11 +303,18 @@ export default function PublicProfile() {
             {profileLoading
               ? <div style={{ height:40, background:'#E8E4DC', width:240, marginBottom:10 }} />
               : <>
-                  <h1 className="profile-h1" style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:32, letterSpacing:'-0.02em', color:t.text, marginBottom:10 }}>
+                  <h1 className="profile-h1" style={{ fontFamily:`'${userFont}',sans-serif`, fontWeight:700, fontSize:32, letterSpacing:'-0.02em', color:accent, marginBottom:10, ...glowStyle }}>
                     {profile?.username}
                   </h1>
+                  <div style={{ marginBottom:8 }}>
+                    {userTheme && (
+                      <span style={{ display:'inline-block', fontFamily:"'JetBrains Mono',monospace", fontSize:10, padding:'2px 8px', background:`rgba(${userTheme.css_vars?.['--user-accent-rgb']||'163,230,53'},.12)`, color:accent, letterSpacing:'0.1em', marginBottom:8 }}>
+                        {rank.rango} · LVL {rank.nivel}
+                      </span>
+                    )}
+                  </div>
                   <div style={{ marginBottom:6 }}>
-                    <span style={{ fontFamily:"'Lora',serif", fontStyle:'italic', fontSize:14, color:t.textMuted }}>
+                    <span style={{ fontFamily:`'${userFont}',sans-serif`, fontStyle:'italic', fontSize:14, color:t.textMuted }}>
                       {profile?.bio || 'No bio yet.'}
                     </span>
                   </div>
@@ -344,6 +406,7 @@ export default function PublicProfile() {
           }
         }
       `}</style>
+    </div>
     </div>
   )
 }
