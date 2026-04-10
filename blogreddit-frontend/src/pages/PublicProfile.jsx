@@ -36,6 +36,10 @@ function getRank(karma = 0) {
 }
 
 const STRIP_COLORS = ['#6DC800','#1A6EC0','#E8420A','#F0B800','#0A9E88']
+const MOODS = [
+  ['online','// ONLINE'],['coding','// CODING'],['afk','// AFK'],
+  ['creating','// CREATING'],['lurking','// LURKING'],['vibing','// VIBING'],
+]
 
 /* ── Sub-components ── */
 function WindowControls() {
