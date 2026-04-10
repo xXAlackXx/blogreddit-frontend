@@ -252,12 +252,14 @@ function ThemeEditorPanel({ profile }) {
   const saveTheme = async () => {
     setSaving(true); setSaveErr('')
     try {
-      await api.patch('/users/me/theme/', {
+      const { data: saved } = await api.patch('/users/me/theme/', {
         accent_color:ts.accent_color, banner_preset:ts.banner_preset,
         pattern:ts.pattern, font:ts.font, banner_opacity:ts.banner_opacity,
         glow_intensity:ts.glow_intensity, border_accent:ts.border_accent, mood:ts.mood,
       })
-      qc.invalidateQueries({ queryKey:['myTheme'] })
+      // Update both the query cache and local state from the server response
+      qc.setQueryData(['myTheme'], saved)
+      setTs(p => ({ ...p, ...saved }))
       setSavedOk(true); setTimeout(() => setSavedOk(false), 2500)
     } catch(err) {
       console.error('Theme save error:', err.response?.data || err.message)
