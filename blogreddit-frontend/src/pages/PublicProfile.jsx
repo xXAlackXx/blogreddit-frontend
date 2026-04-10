@@ -41,11 +41,11 @@ function WindowControls() {
 }
 
 function PanelBox({ title, children }) {
-  const { t } = useTheme()
+  const { t, isDark } = useTheme()
   return (
-    <div style={{ border:`2px solid ${t.border}`, boxShadow:'6px 6px 0 #6DC800', background:t.panelBg }}>
-      <div style={{ height:24, background:'#111008', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 10px' }}>
-        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#6DC800', textTransform:'uppercase' }}>{title}</span>
+    <div style={{ border:`2px solid ${t.border}`, boxShadow:`4px 4px 0 ${isDark ? t.border : '#111008'}`, background:t.panelBg }}>
+      <div style={{ height:24, background:t.pageBg, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 10px', borderBottom:`1px solid ${t.border}` }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.accent, textTransform:'uppercase' }}>{title}</span>
         <WindowControls />
       </div>
       {children}
@@ -59,7 +59,7 @@ function StatLine({ label, value, acid }) {
     <div style={{ display:'flex', fontFamily:"'JetBrains Mono',monospace", fontSize:12, lineHeight:1.8 }}>
       <span style={{ color:t.textMuted, textTransform:'uppercase', flexShrink:0 }}>{label}</span>
       <span style={{ color:t.borderMid, flex:1, overflow:'hidden', padding:'0 4px', whiteSpace:'nowrap' }}>{'................'.repeat(4)}</span>
-      <span style={{ color: acid ? '#6DC800' : t.text, fontWeight:700, textTransform:'uppercase', flexShrink:0 }}>{value}</span>
+      <span style={{ color: acid ? t.accent : t.text, fontWeight:700, textTransform:'uppercase', flexShrink:0 }}>{value}</span>
     </div>
   )
 }
@@ -72,11 +72,11 @@ function TabBtn({ label, active, onClick, last }) {
       onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
       style={{
         fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight: active ? 700 : 400,
-        color: active ? '#6DC800' : hov ? t.textSub : t.textMuted,
-        background: active ? '#111008' : hov ? t.panelBg : 'transparent',
+        color: active ? t.accent : hov ? t.textSub : t.textMuted,
+        background: active ? t.pageBg : hov ? t.panelBg : 'transparent',
         padding:'14px 24px', border:'none', cursor:'pointer',
         borderRight: last ? 'none' : `2px solid ${t.border}`,
-        borderBottom: active ? '3px solid #6DC800' : '3px solid transparent',
+        borderBottom: active ? `3px solid ${t.accent}` : '3px solid transparent',
         transition:'all .15s',
       }}
     >{label}</button>
@@ -108,7 +108,7 @@ function PostCard({ post, index, username }) {
             </p>
           )}
           <div style={{ display:'flex', alignItems:'center', gap:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textSub }}>
-            <span style={{ color: score >= 0 ? '#6DC800' : '#E8420A' }}>▲ {score > 0 ? '+' : ''}{score}</span>
+            <span style={{ color: score >= 0 ? t.accent : '#E8420A' }}>▲ {score > 0 ? '+' : ''}{score}</span>
             <span>⏱ {readTime(post.content)} min read</span>
           </div>
         </div>
@@ -146,7 +146,7 @@ function CommentCard({ comment, index, username }) {
 function TerminalEmpty({ lines }) {
   const { t } = useTheme()
   return (
-    <div style={{ padding:20, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:'#6DC800', lineHeight:1.8, borderTop:`2px dashed ${t.borderMid}`, marginTop:10 }}>
+    <div style={{ padding:20, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:t.accent, lineHeight:1.8, borderTop:`2px dashed ${t.borderMid}`, marginTop:10 }}>
       {lines.map((l, i) => <p key={i}>&gt; {l}{i === lines.length-1 && <span className="blinking-cursor"> █</span>}</p>)}
     </div>
   )
@@ -155,7 +155,7 @@ function TerminalEmpty({ lines }) {
 /* ── Main ── */
 export default function PublicProfile() {
   const { username } = useParams()
-  const { t } = useTheme()
+  const { t, isDark } = useTheme()
   const [tab, setTab] = useState('posts')
 
   const { data: profile, isLoading: profileLoading, isError } = useQuery({
@@ -180,7 +180,7 @@ export default function PublicProfile() {
   const rank     = getRank(profile?.karma)
 
   if (isError) return (
-    <div style={{ background:'#ECEAE2', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+    <div style={{ background:t.pageBg, minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
       <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:14, color:'#E8420A' }}>
         &gt; USER NOT FOUND<span className="blinking-cursor"> █</span>
       </div>
@@ -205,10 +205,10 @@ export default function PublicProfile() {
               }
             </div>
             <div style={{ padding:12, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:'#111008' }}>
+              <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:18, color:t.text }}>
                 {profileLoading ? '...' : profile?.username}
               </span>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#9A9288' }}>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textMuted }}>
                 // MEMBER
               </div>
             </div>
@@ -222,10 +222,10 @@ export default function PublicProfile() {
               <StatLine label="KARMA"    value={profile?.karma          ?? 0} acid />
               <StatLine label="RANK"     value={rank.rango} />
               <StatLine label="LEVEL"    value={rank.nivel} />
-              <div style={{ marginTop:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:'#9A9288' }}>
+              <div style={{ marginTop:15, fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:t.textMuted }}>
                 <span>LEVEL {rank.label}</span>
-                <div style={{ height:6, background:'#C8C2B6', marginTop:4 }}>
-                  <div style={{ height:'100%', background:'#6DC800', width:`${Math.min(rank.progress,100)}%`, transition:'width 1s ease' }} />
+                <div style={{ height:6, background:t.borderMid, marginTop:4 }}>
+                  <div style={{ height:'100%', background:t.accent, width:`${Math.min(rank.progress,100)}%`, transition:'width 1s ease' }} />
                 </div>
               </div>
             </div>
@@ -274,7 +274,7 @@ export default function PublicProfile() {
           {tab === 'posts' && (
             <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
               {postsLoading
-                ? [1,2,3].map(i => <div key={i} style={{ height:120, border:'2px solid #111008', background:'#E8E4DC' }} />)
+                ? [1,2,3].map(i => <div key={i} style={{ height:120, border:`2px solid ${t.border}`, background:t.panelBg }} />)
                 : posts.length === 0
                   ? <TerminalEmpty lines={['RUNNING SEARCH...','// 0 RESULTS','// END OF TRANSMISSION']} />
                   : posts.map((p,i) => <PostCard key={p.id} post={p} index={i} username={username} />)
@@ -286,7 +286,7 @@ export default function PublicProfile() {
           {tab === 'comments' && (
             <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
               {commentsLoading
-                ? [1,2,3].map(i => <div key={i} style={{ height:90, border:'2px solid #111008', background:'#E8E4DC' }} />)
+                ? [1,2,3].map(i => <div key={i} style={{ height:90, border:`2px solid ${t.border}`, background:t.panelBg }} />)
                 : comments.length === 0
                   ? <TerminalEmpty lines={['SEARCHING COMMENTS...','// 0 RESULTS','// END OF TRANSMISSION']} />
                   : comments.map((c,i) => <CommentCard key={c.id} comment={c} index={i} username={username} />)
