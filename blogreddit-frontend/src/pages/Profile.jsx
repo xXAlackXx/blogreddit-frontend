@@ -219,12 +219,14 @@ function ThemeEditorPanel({ profile }) {
   const DEFAULT_THEME = {
     accent_color:'#A3E635', banner_preset:'nebula', pattern:'none',
     font:'JetBrains Mono', banner_opacity:100, glow_intensity:25,
-    border_accent:0, mood:'online', has_banner_image:false, banner_image_url:null,
+    border_accent:0, mood:'online',
+    has_custom_banner:false, banner_image_url:null,
+    banner_gradient: BANNER_PRESETS.nebula,
   }
   const [ts, setTs] = useState(DEFAULT_THEME)
   const update = (k, v) => setTs(p => ({ ...p, [k]: v }))
 
-  useEffect(() => { if (themeData) setTs(p => ({ ...p, ...themeData })) }, [themeData])
+  useEffect(() => { if (themeData) setTs(DEFAULT_THEME => ({ ...DEFAULT_THEME, ...themeData })) }, [themeData])
 
   /* Load all preview fonts once */
   useEffect(() => {
@@ -239,25 +241,32 @@ function ThemeEditorPanel({ profile }) {
   }, [])
 
   /* Derived preview values */
-  const rgb      = /^#[0-9A-Fa-f]{6}$/.test(ts.accent_color) ? hexToRgb(ts.accent_color) : '163,230,53'
-  const bannerBg = ts.has_banner_image && ts.banner_image_url
-    ? `url(${api.defaults.baseURL + ts.banner_image_url.replace('/api/users','/users')}) center/cover`
+  const rgb = /^#[0-9A-Fa-f]{6}$/.test(ts.accent_color) ? hexToRgb(ts.accent_color) : '163,230,53'
+
+  /* Banner: custom image > selected gradient */
+  const bannerBg = ts.has_custom_banner && ts.banner_image_url
+    ? `url(${ts.banner_image_url}?t=${ts.updated_at||''}) center/cover`
     : BANNER_PRESETS[ts.banner_preset] || BANNER_PRESETS.nebula
+
   const previewGlow   = ts.glow_intensity > 0
     ? { boxShadow:`0 0 ${ts.glow_intensity*.35}px rgba(${rgb},${ts.glow_intensity*.004})` } : {}
   const previewBorder = ts.border_accent > 0
     ? { borderColor:`rgba(${rgb},${ts.border_accent/100})` } : {}
 
-  /* Save */
+  /* Save — only send scalar fields, server returns full theme back */
   const saveTheme = async () => {
     setSaving(true); setSaveErr('')
     try {
       const { data: saved } = await api.patch('/users/me/theme/', {
-        accent_color:ts.accent_color, banner_preset:ts.banner_preset,
-        pattern:ts.pattern, font:ts.font, banner_opacity:ts.banner_opacity,
-        glow_intensity:ts.glow_intensity, border_accent:ts.border_accent, mood:ts.mood,
+        accent_color:   ts.accent_color,
+        banner_preset:  ts.banner_preset,
+        pattern:        ts.pattern,
+        font:           ts.font,
+        banner_opacity: ts.banner_opacity,
+        glow_intensity: ts.glow_intensity,
+        border_accent:  ts.border_accent,
+        mood:           ts.mood,
       })
-      // Update both the query cache and local state from the server response
       qc.setQueryData(['myTheme'], saved)
       setTs(p => ({ ...p, ...saved }))
       setSavedOk(true); setTimeout(() => setSavedOk(false), 2500)
@@ -269,19 +278,25 @@ function ThemeEditorPanel({ profile }) {
     } finally { setSaving(false) }
   }
 
-  /* Banner upload / remove */
+  /* Banner upload — DELETE method to remove (v2 spec) */
   const uploadBanner = async (file) => {
     const fd = new FormData(); fd.append('banner_image', file)
     try {
       const { data } = await api.post('/users/me/theme/banner/', fd)
-      setTs(p => ({ ...p, has_banner_image:true, banner_image_url:`${data.banner_image_url}?t=${Date.now()}` }))
-    } catch {}
+      setTs(p => ({ ...p, has_custom_banner: data.has_custom_banner, banner_image_url: data.banner_image_url, updated_at: data.updated_at }))
+      qc.setQueryData(['myTheme'], (old) => ({ ...(old||{}), ...data }))
+    } catch(err) {
+      console.error('Banner upload error:', err.response?.data || err.message)
+    }
   }
   const removeBanner = async () => {
     try {
-      await api.post('/users/me/theme/banner/remove/')
-      setTs(p => ({ ...p, has_banner_image:false, banner_image_url:null }))
-    } catch {}
+      const { data } = await api.delete('/users/me/theme/banner/')
+      setTs(p => ({ ...p, has_custom_banner: false, banner_image_url: null, ...data }))
+      qc.setQueryData(['myTheme'], (old) => ({ ...(old||{}), ...data }))
+    } catch(err) {
+      console.error('Banner remove error:', err.response?.data || err.message)
+    }
   }
 
   if (themeLoading) return (
@@ -375,8 +390,8 @@ function ThemeEditorPanel({ profile }) {
             <SH>BANNER</SH>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:5, marginBottom:10 }}>
               {Object.entries(BANNER_PRESETS).map(([key,css]) => (
-                <div key={key} onClick={()=>{ update('banner_preset',key); update('has_banner_image',false) }}
-                  style={{ height:32, background:css, cursor:'pointer', border:`2px solid ${ts.banner_preset===key&&!ts.has_banner_image?ts.accent_color:t.border}`, position:'relative', transition:'border-color .1s' }}>
+                <div key={key} onClick={()=>{ update('banner_preset',key); update('has_custom_banner',false) }}
+                  style={{ height:32, background:css, cursor:'pointer', border:`2px solid ${ts.banner_preset===key&&!ts.has_custom_banner?ts.accent_color:t.border}`, position:'relative', transition:'border-color .1s' }}>
                   <span style={{ position:'absolute', bottom:2, left:3, fontFamily:"'JetBrains Mono',monospace", fontSize:7, color:'rgba(255,255,255,.6)', textTransform:'uppercase', letterSpacing:'0.08em' }}>{key.replace('_',' ')}</span>
                 </div>
               ))}
@@ -386,7 +401,7 @@ function ThemeEditorPanel({ profile }) {
                 style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, fontWeight:700, textTransform:'uppercase', background:'transparent', color:t.textSub, border:`2px solid ${t.border}`, padding:'6px 12px', cursor:'pointer' }}>
                 📷 UPLOAD IMAGE
               </button>
-              {ts.has_banner_image && (
+              {ts.has_custom_banner && (
                 <button onClick={removeBanner}
                   style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:'#E8420A', background:'none', border:'1px solid #E8420A', padding:'5px 10px', cursor:'pointer' }}>
                   REMOVE
@@ -605,14 +620,14 @@ export default function Profile() {
           {/* Avatar Panel */}
           <PanelBox title="// USER.EXE">
             <div className="avatar-area" style={myTheme ? {
-              background: myTheme.has_banner_image && myTheme.banner_image_url
-                ? `url(${api.defaults.baseURL + myTheme.banner_image_url.replace('/api/users','/users')}) center/cover`
-                : myTheme.banner_css || '#F0B800',
+              background: myTheme.has_custom_banner && myTheme.banner_image_url
+                ? `url(${myTheme.banner_image_url}) center/cover`
+                : myTheme.banner_gradient || '#F0B800',
               opacity: myTheme.banner_opacity ? myTheme.banner_opacity / 100 : 1,
             } : {}}>
               {/* pattern overlay */}
-              {myTheme?.pattern_css && (
-                <div style={{ position:'absolute', inset:0, background:myTheme.pattern_css, backgroundSize: myTheme.pattern==='dots'?'12px 12px':'auto', zIndex:0, pointerEvents:'none' }} />
+              {myTheme?.pattern && myTheme.pattern !== 'none' && (
+                <div style={{ position:'absolute', inset:0, background:PATTERN_BG[myTheme.pattern]||'', backgroundSize: myTheme.pattern==='dots'?'12px 12px':'auto', zIndex:0, pointerEvents:'none' }} />
               )}
               {avatarSrc
                 ? <img src={avatarSrc} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0, zIndex:1 }} />

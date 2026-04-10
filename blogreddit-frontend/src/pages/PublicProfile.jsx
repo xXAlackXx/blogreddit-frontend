@@ -207,23 +207,37 @@ export default function PublicProfile() {
   const comments = Array.isArray(commentsData) ? commentsData : (commentsData?.results || [])
   const rank     = getRank(profile?.karma)
 
-  /* Derived theme values */
-  const accent      = userTheme?.accent_color || t.accent
-  const userFont    = userTheme?.font         || 'Space Grotesk'
-  const bannerBg    = userTheme
-    ? (userTheme.has_banner_image && userTheme.banner_image_url
-        ? `url(${api.defaults.baseURL + userTheme.banner_image_url.replace('/api/users','/users')}) center/cover`
-        : userTheme.banner_css || '#F0B800')
+  /* Derived theme values — all computed on frontend from scalar fields */
+  const accent        = userTheme?.accent_color || t.accent
+  const userFont      = userTheme?.font         || 'Space Grotesk'
+  const bannerBg      = userTheme
+    ? (userTheme.has_custom_banner && userTheme.banner_image_url
+        ? `url(${userTheme.banner_image_url}) center/cover`
+        : userTheme.banner_gradient || '#F0B800')
     : '#F0B800'
   const bannerOpacity = userTheme ? userTheme.banner_opacity / 100 : 1
-  const patternCss  = userTheme ? (PATTERN_BG[userTheme.pattern] || '') : ''
-  const moodDisplay = userTheme?.mood_display || '// MEMBER'
-  const cssVars     = userTheme?.css_vars     || {}
+  const patternCss    = userTheme ? (PATTERN_BG[userTheme.pattern] || '') : ''
 
-  const glowStyle   = (userTheme?.glow_intensity > 0 && userTheme?.css_vars?.['--user-accent-glow'])
-    ? { boxShadow: userTheme.css_vars['--user-accent-glow'] } : {}
-  const borderStyle = (userTheme?.border_accent > 0 && userTheme?.css_vars?.['--user-border-accent'])
-    ? { borderColor: userTheme.css_vars['--user-border-accent'] } : {}
+  const moodDisplay = userTheme
+    ? (MOODS.find ? MOODS.find(m => m[0] === userTheme.mood)?.[1] : null) || userTheme.mood || '// MEMBER'
+    : '// MEMBER'
+
+  // Compute CSS effect values from scalars
+  const rgb = accent && /^#[0-9A-Fa-f]{6}$/.test(accent)
+    ? (() => { const h = accent.replace('#',''); return `${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}` })()
+    : '163,230,53'
+
+  const glowStyle   = userTheme?.glow_intensity > 0
+    ? { boxShadow: `0 0 ${userTheme.glow_intensity * .35}px rgba(${rgb},${userTheme.glow_intensity * .004})` } : {}
+  const borderStyle = userTheme?.border_accent > 0
+    ? { borderColor: `rgba(${rgb},${userTheme.border_accent/100})` } : {}
+
+  const cssVars = userTheme ? {
+    '--user-accent':      accent,
+    '--user-accent-rgb':  rgb,
+    '--user-accent-bg':   `rgba(${rgb},0.12)`,
+    '--user-font':        `'${userFont}', monospace`,
+  } : {}
 
   if (isError) return (
     <div style={{ background:t.pageBg, minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -263,7 +277,7 @@ export default function PublicProfile() {
               <span style={{ fontFamily:`'${userFont}',sans-serif`, fontWeight:700, fontSize:18, color:accent }}>
                 {profileLoading ? '...' : profile?.username}
               </span>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:accent, borderLeft:`2px solid rgba(${userTheme?.css_vars?.['--user-accent-rgb']||'163,230,53'},.3)`, paddingLeft:6 }}>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:accent, borderLeft:`2px solid rgba(${rgb},.3)`, paddingLeft:6 }}>
                 {moodDisplay}
               </div>
             </div>
