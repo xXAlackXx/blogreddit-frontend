@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useParams, Link, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import api from '../api/axios'
 import { useAuth } from '../context/AuthContext'
 import VoteButtons from '../components/VoteButtons'
@@ -31,6 +31,8 @@ export default function PostDetail() {
                   : from === 'myprofile' ? '← BACK TO MY PROFILE'
                   : '← BACK TO FEED'
   const [comment, setComment] = useState('')
+  const [allComments, setAllComments] = useState(null)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   const { data: post, isLoading } = useQuery({
     queryKey: ['post', id],
@@ -41,6 +43,27 @@ export default function PostDetail() {
     queryKey: ['comments', id],
     queryFn: () => api.get(`/posts/${id}/comments/`).then(r => r.data),
   })
+
+  // Accumulate paginated comments
+  useEffect(() => {
+    if (comments) setAllComments(comments)
+  }, [comments])
+
+  const loadMore = async () => {
+    if (!allComments?.next || loadingMore) return
+    setLoadingMore(true)
+    try {
+      const res = await api.get(allComments.next)
+      setAllComments(prev => ({
+        ...prev,
+        results: [...prev.results, ...res.data.results],
+        next: res.data.next,
+        count: res.data.count,
+      }))
+    } finally {
+      setLoadingMore(false)
+    }
+  }
 
   const commentMutation = useMutation({
     mutationFn: () => api.post(`/posts/${id}/comments/`, { content: comment }),
@@ -157,13 +180,13 @@ export default function PostDetail() {
 
         {/* Comment list */}
         <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
-          {comments?.results?.length === 0 ? (
+          {allComments?.results?.length === 0 ? (
             <div style={{ padding:'24px 0', textAlign:'center' }}>
               <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:'#9A9288', textTransform:'uppercase', letterSpacing:'0.1em' }}>
                 no comments yet
               </span>
             </div>
-          ) : comments?.results?.map((c, i) => (
+          ) : allComments?.results?.map((c, i) => (
             <div key={c.id} className="slam" style={{
               borderTop: i===0 ? `2px solid ${t.borderLight}` : `1px solid ${t.borderLight}`,
               padding:'16px 0',
@@ -193,6 +216,25 @@ export default function PostDetail() {
               </div>
             </div>
           ))}
+
+          {/* Load More button */}
+          {allComments?.next && (
+            <div style={{ display:'flex', justifyContent:'center', padding:'16px 0' }}>
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                style={{
+                  background: loadingMore ? '#C8C2B6' : 'transparent',
+                  color: loadingMore ? '#111008' : t.textSub,
+                  border: `2px solid ${loadingMore ? '#C8C2B6' : t.borderMid}`,
+                  boxShadow: loadingMore ? 'none' : `3px 3px 0 ${t.borderMid}`,
+                  fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:13,
+                  textTransform:'uppercase', letterSpacing:'0.06em',
+                  padding:'8px 18px', cursor: loadingMore ? 'not-allowed' : 'pointer',
+                }}
+              >{loadingMore ? 'LOADING...' : 'LOAD MORE COMMENTS →'}</button>
+            </div>
+          )}
         </div>
       </div>
     </div>
