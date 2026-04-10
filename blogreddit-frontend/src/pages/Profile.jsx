@@ -491,7 +491,7 @@ function ThemeEditorPanel({ profile }) {
 }
 
 /* ── Banner Editor Panel Component ── */
-function BannerEditorPanel({ theme, setTheme, onClose }) {
+function BannerEditorPanel({ theme, setTheme, onLiveChange, onClose }) {
   const { t } = useTheme()
   const qc = useQueryClient()
   const bannerFileRef = useRef(null)
@@ -500,7 +500,10 @@ function BannerEditorPanel({ theme, setTheme, onClose }) {
   const [saveErr, setSaveErr] = useState('')
 
   const [localTheme, setLocalTheme] = useState(theme)
-  const update = (k, v) => setLocalTheme(p => ({ ...p, [k]: v }))
+  const update = (k, v) => {
+    setLocalTheme(p => ({ ...p, [k]: v }))
+    if (onLiveChange) onLiveChange({ [k]: v })
+  }
 
   useEffect(() => { setLocalTheme(theme) }, [theme])
 
@@ -935,8 +938,11 @@ export default function Profile() {
       {/* ══ BANNER EDIT PANEL (when toggled) ══ */}
       {bannerEditMode && myTheme && (
         <div style={{ maxWidth:1200, margin:'0 auto 30px' }}>
-          <BannerEditorPanel 
-            theme={myTheme} 
+          <BannerEditorPanel
+            theme={myTheme}
+            onLiveChange={(updates) => {
+              qc.setQueryData(['myTheme'], (old) => ({ ...(old||{}), ...updates }))
+            }}
             setTheme={(updates) => {
               qc.setQueryData(['myTheme'], (old) => ({ ...(old||{}), ...updates }))
             }}
