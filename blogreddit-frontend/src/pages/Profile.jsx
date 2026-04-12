@@ -362,7 +362,7 @@ function ThemeEditorPanel({ profile }) {
         </div>
 
         {/* ── CONTROLS ── */}
-        <div style={{ padding:20, display:'flex', flexDirection:'column', gap:20, overflowY:'auto', maxHeight:580 }}>
+        <div className="theme-editor-controls" style={{ padding:20, display:'flex', flexDirection:'column', gap:20, overflowY:'auto', maxHeight:580 }}>
 
           {/* ACCENT COLOR */}
           <div>
@@ -756,8 +756,10 @@ function ProfileBanner({ theme, onEditBanner }) {
 
   return (
     <div
+      className="profile-banner"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={onEditBanner}
       style={{
         position: 'relative',
         width: '100%',
@@ -770,6 +772,7 @@ function ProfileBanner({ theme, onEditBanner }) {
         boxShadow: `6px 6px 0 ${t.shadow}`,
         overflow: 'hidden',
         transition: 'all .2s',
+        cursor: 'pointer',
       }}
     >
       {/* Pattern overlay */}
@@ -793,7 +796,7 @@ function ProfileBanner({ theme, onEditBanner }) {
         pointerEvents: 'none',
       }} />
 
-      {/* Edit overlay on hover - solo botón */}
+      {/* Edit overlay on hover */}
       {isHovered && (
         <div style={{
           position: 'absolute',
@@ -826,6 +829,27 @@ function ProfileBanner({ theme, onEditBanner }) {
           </button>
         </div>
       )}
+
+      {/* Mobile edit hint — always visible on touch devices */}
+      <div className="profile-banner-edit-hint" style={{
+        display: 'none',
+        position: 'absolute',
+        bottom: 8,
+        right: 10,
+        zIndex: 4,
+        background: 'rgba(0,0,0,0.65)',
+        border: `1px solid ${theme.accent_color || t.accent}`,
+        padding: '4px 10px',
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: 9,
+        fontWeight: 700,
+        color: theme.accent_color || t.accent,
+        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
+        pointerEvents: 'none',
+      }}>
+        TAP TO EDIT
+      </div>
     </div>
   )
 }
@@ -1197,8 +1221,9 @@ export default function Profile() {
       <style>{`
         .theme-editor-grid { min-height: 500px; }
         @media (max-width: 700px) {
-          .theme-editor-grid { grid-template-columns: 1fr !important; }
+          .theme-editor-grid { grid-template-columns: 1fr !important; min-height: unset !important; }
           .theme-editor-grid > *:first-child { border-right: none !important; border-bottom: 2px solid; }
+          .theme-editor-controls { max-height: none !important; }
         }
         .avatar-area {
           height: 200px;
@@ -1237,10 +1262,13 @@ export default function Profile() {
           .settings-panel-body { padding: 14px 16px !important; }
           .tab-bar { overflow-x: auto !important; }
           .tab-bar button { padding: 12px 16px !important; font-size: 10px !important; white-space: nowrap; }
+          .profile-banner { height: 140px !important; margin-bottom: 20px !important; }
         }
         @media (max-width: 480px) {
           .profile-grid { gap: 14px !important; }
           .settings-panel-body { padding: 12px !important; }
+          .profile-banner { height: 110px !important; }
+          .profile-banner-edit-hint { display: flex !important; }
         }
       `}</style>
     </div>
