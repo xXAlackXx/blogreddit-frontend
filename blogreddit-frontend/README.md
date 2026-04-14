@@ -1,6 +1,15 @@
 # BlogReddit — Frontend
 
-Interfaz web para la API BlogReddit. Diseño DECAY—84: estética brutalista inspirada en skate culture, street art y zines de los 80s.
+Interfaz web para la API BlogReddit. Diseño DECAY—84: estética neobrutalist inspirada en skate culture, street art y zines de los 80s.
+
+---
+
+## Live Demo
+
+| Servicio | URL |
+|---------|-----|
+| Frontend (Vercel) | `https://blogreddit-frontend-an47.vercel.app` |
+| Backend API (Render) | `https://blogreddit-api.onrender.com` |
 
 ---
 
@@ -10,10 +19,11 @@ Interfaz web para la API BlogReddit. Diseño DECAY—84: estética brutalista in
 |---|---|---|
 | React | 19 | UI con componentes |
 | Vite | 8 | Bundler + dev server |
-| Tailwind CSS | v4 | Sistema de diseño (CSS vars + @theme) |
-| React Router | v7 | Navegación entre páginas |
-| TanStack React Query | v5 | Fetching, caché y mutaciones |
-| Axios | latest | Cliente HTTP con interceptores JWT |
+| React Router | v7 | Navegación entre páginas con `location.state` |
+| TanStack React Query | v5 | Server state, caché, mutaciones, paginación infinita |
+| Axios | 1.x | Cliente HTTP con interceptores JWT y auto-refresh |
+| react-easy-crop | 5.x | Crop circular de avatares antes de subir |
+| DOMPurify | 3.x | Sanitización XSS en contenido markdown |
 
 ---
 
@@ -22,86 +32,116 @@ Interfaz web para la API BlogReddit. Diseño DECAY—84: estética brutalista in
 ```
 blogreddit-frontend/
 ├── public/
-│   ├── favicon.svg
-│   └── icons.svg
+│   └── favicon.svg               # Logo ONYX SVG
+├── vercel.json                   # Security headers: CSP, HSTS, X-Frame-Options
 └── src/
     ├── api/
-    │   └── axios.js          # Instancia Axios + JWT auto-refresh
+    │   └── axios.js              # Instancia Axios + JWT auto-refresh con interceptores
     ├── context/
-    │   └── AuthContext.jsx   # Estado global de autenticación
+    │   ├── AuthContext.jsx       # Estado global de autenticación, login/logout, refreshUser
+    │   └── ThemeContext.jsx      # Tema dinámico por usuario (colores, fuentes, modo oscuro)
     ├── components/
-    │   ├── Navbar.jsx        # Barra superior sticky con logo DECAY—84
-    │   ├── Footer.jsx        # Footer con links, autor y paleta de colores
-    │   ├── HeroStrip.jsx     # Banner oscuro con heading brutalista
-    │   ├── PostCard.jsx      # Card con sombra brutal, rotación y tilt 3D
-    │   ├── VoteButtons.jsx   # Botones up/down estilo brutalista
-    │   ├── SortTabs.jsx      # Tabs NUEVO / TOP / HOT
-    │   ├── TagBadge.jsx      # Sticker de categoría con sombra offset
-    │   ├── Sidebar.jsx       # Perfil, comunidad, tags, quote
-    │   ├── ParticleCanvas.jsx# Canvas con partículas y repulsión al cursor
-    │   └── GrainOverlay.jsx  # No-op (grain manejado por CSS)
+    │   ├── Navbar.jsx            # Logo SVG ONYX, botón ⚡ CMD solo para admins
+    │   ├── Footer.jsx            # Footer con logo, links y créditos
+    │   ├── PostCard.jsx          # Card de post en el feed con sombra brutal
+    │   ├── VoteButtons.jsx       # Up/downvote con toggle y cambio de sentido
+    │   ├── AvatarCropModal.jsx   # Modal de crop circular con zoom (react-easy-crop)
+    │   ├── ParticleCanvas.jsx    # Canvas con partículas y repulsión al cursor
+    │   └── GrainOverlay.jsx      # Grain texture sobre la UI
     └── pages/
-        ├── Home.jsx          # Feed con hero, búsqueda, sort y sidebar
-        ├── Login.jsx         # Terminal de acceso
-        ├── Register.jsx      # Registro de nuevo miembro
-        ├── CreatePost.jsx    # Editor de post con tab oscuro
-        └── PostDetail.jsx    # Post completo + comentarios
+        ├── Home.jsx              # Feed con búsqueda, sorting y sidebar
+        ├── AuthPage.jsx          # Login + Registro en una sola página con tabs
+        ├── CreatePost.jsx        # Editor con soporte markdown e imagen opcional
+        ├── PostDetail.jsx        # Post + comentarios paginados + botón back contextual
+        ├── Profile.jsx           # Perfil propio: avatar, bio, tema personalizable
+        ├── PublicProfile.jsx     # Perfil público /u/:username (read-only)
+        └── AdminPanel.jsx        # Panel de administración (solo role=admin)
 ```
+
+---
+
+## Features
+
+### Autenticación
+- Login y registro con JWT (access 30min + refresh 1 día)
+- Interceptor de Axios que renueva el access token automáticamente al expirar
+- Redirect automático a `/login` para rutas protegidas
+
+### Perfiles y temas
+- Perfil propio editable: avatar + bio
+- **Crop modal circular** para ajustar la foto antes de subirla
+- GIFs se saltean el crop (el canvas rompe la animación)
+- **Theme editor** integrado en el perfil: accent color, banner, fuente, efectos (glow, border), mood status
+- Perfiles públicos en `/u/:username` — misma estética, solo lectura
+- Sistema de karma y ranking: RECRUIT → ROOKIE → REGULAR → VETERAN
+
+### Posts y comentarios
+- CRUD de posts con imagen opcional (JPEG/PNG/GIF/WEBP, máx 5 MB)
+- Editor con soporte markdown sanitizado con DOMPurify (anti-XSS)
+- Comentarios paginados con **`useInfiniteQuery`** — "Load More" sin perder el estado de scroll
+- Postear un comentario invalida todas las páginas cargadas, no solo la primera
+- Sistema de votos up/down con toggle y cambio de sentido
+
+### Navegación contextual
+- Botón **← Back** en PostDetail se adapta al origen:
+  - Feed → `← BACK TO FEED`
+  - Perfil propio → `← BACK TO MY PROFILE`
+  - Perfil público → `← BACK TO [USERNAME]'S PROFILE`
+- Implementado con `location.state` de React Router (sin query params)
+
+### Panel de administración
+- Accesible en `/admin-panel` solo si `role = admin`
+- Estadísticas globales, listado de posts/comentarios, eliminación de cualquier contenido
+- Botón ⚡ CMD en el navbar solo visible para admins
 
 ---
 
 ## Diseño — DECAY—84
 
-Paleta de colores del sistema:
+Paleta de colores:
 
-| Variable | Hex | Uso |
+| Color | Hex | Uso |
 |---|---|---|
-| `--ink` | `#111008` | Fondo oscuro, borders, sombras |
-| `--acid` | `#6DC800` | Acento principal verde ácido |
-| `--rust` | `#E8420A` | Acento secundario naranja/rojo |
-| `--amber` | `#F0B800` | Acento dorado |
-| `--steel` | `#1A6EC0` | Acento azul |
-| `--teal` | `#0A9E88` | Acento verde agua |
-| `--wall` | `#F2EFE8` | Fondo claro (como pared de concreto) |
-| `--paper` | `#FDFCF8` | Fondo de cards (papel envejecido) |
+| Acid green | `#6DC800` | Acento principal |
+| Rust | `#E8420A` | Acento secundario / destructivo |
+| Amber | `#F0B800` | Acento dorado |
+| Steel | `#1A6EC0` | Acento azul |
+| Teal | `#0A9E88` | Acento verde agua |
+| Ink | `#111008` | Fondo oscuro, borders, sombras |
+| Wall | `#F2EFE8` | Fondo modo claro |
 
 Tipografías:
 - **Space Grotesk** — headings, labels, botones
-- **Lora (italic)** — títulos de posts, citas
+- **Lora (italic)** — títulos de posts
 - **JetBrains Mono** — metadata, tags, UI técnica
 - **DM Sans** — cuerpo de texto
 
 Elementos característicos:
-- Sombras brutales `5px 5px 0 #111008`
-- Grain texture animado sobre toda la UI (CSS SVG filter)
+- Sombras brutales sólidas `5px 5px 0 #111008`
+- Grain texture sobre toda la UI
 - Partículas en canvas con repulsión al cursor
-- Cards con rotación aleatoria sutil y tilt 3D en hover
-- Ghost number "84" en hero y sidebar
 - Animación `slamIn` de entrada escalonada
+- Modo oscuro / claro con ThemeContext
 
 ---
 
-## Instalación
+## Instalación local
 
 ```bash
-# 1. Instalar dependencias
 npm install
-
-# 2. Levantar el servidor de desarrollo
 npm run dev
 ```
 
-Requiere el backend Django corriendo en `http://localhost:8000`.
+Requiere el backend Django corriendo en `http://localhost:8000`.  
+Configurar `VITE_API_URL=http://localhost:8000/api` en `.env`.
 
 ---
 
-## Conexión con el backend
+## Variables de entorno
 
-El frontend se conecta a la API en `http://localhost:8000/api/`.
-El archivo `src/api/axios.js` maneja:
-- Token JWT en cada request (`Authorization: Bearer <token>`)
-- Refresh automático del access token al expirar
-- CORS configurado en el backend para `localhost:5173`
+```env
+VITE_API_URL=https://tu-api.onrender.com/api
+```
 
 ---
 
@@ -109,12 +149,14 @@ El archivo `src/api/axios.js` maneja:
 
 | Ruta | Página | Auth |
 |---|---|---|
-| `/` | Feed de posts con hero y sidebar | No |
-| `/login` | Login con JWT | No |
-| `/register` | Registro de usuario | No |
+| `/` | Feed con búsqueda, sorting y sidebar | No |
+| `/login` | Login + Registro | No |
 | `/create` | Crear nuevo post | Sí |
-| `/posts/:id` | Post completo + comentarios + votos | Parcial |
+| `/posts/:id` | Post + comentarios paginados + votos | Parcial |
+| `/profile` | Perfil propio + editor de tema | Sí |
+| `/u/:username` | Perfil público (read-only) | No |
+| `/admin-panel` | Panel de administración | Admin |
 
 ---
 
-*Construido por @xXlAlackXx — DECAY—84 Edition*
+*Construido por @xXAlackXx — DECAY—84 Edition*
